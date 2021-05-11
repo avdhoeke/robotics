@@ -1,6 +1,7 @@
 import socket
 import pickle
 import struct
+import numpy as np
 
 
 class Network:
@@ -13,12 +14,12 @@ class Network:
         self.addr = (self.host, self.port)
         self.client.connect(self.addr)
 
-    def send(self, data):
+    def send(self, data) -> None:
         data = pickle.dumps(data)
         self.client.sendall(struct.pack('>i', len(data)))
         self.client.sendall(data)
 
-    def recv(self):
+    def recv(self) -> list:
         data = self.client.recv(4, socket.MSG_WAITALL)
         data_len = struct.unpack('>i', data)[0]
         data = self.client.recv(data_len, socket.MSG_WAITALL)
