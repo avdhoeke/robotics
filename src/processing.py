@@ -1,10 +1,9 @@
 import cv2
 import numpy as np
-from src import Square
 from typing import *
 
 
-def get_red_dot(square: Square, frame: np.ndarray, display_images: bool) -> None:
+def get_red_dot(square: List, frame: np.ndarray, display_images: bool) -> None:
     # Process the input image from webcam
     total, red, final = filter_image(frame)
 
@@ -21,7 +20,7 @@ def get_red_dot(square: Square, frame: np.ndarray, display_images: bool) -> None
     cv2.imshow('Original image with red square', image)
 
     # Set new square location
-    square.x, square.y = x, y
+    square[0], square[1] = x, y
 
 
 def filter_image(frame: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -77,5 +76,7 @@ def compute_red_dot(final: np.ndarray, frame: np.ndarray) -> Tuple[float, float,
     if x is not None and y is not None:
         x, y = int(x), int(y)
         image[y - 10:y + 10, x - 10:x + 10, :] = (100, 100, 255)
+        return float(x), float(y), image
 
-    return float(x), float(y), image
+    else:
+        return x, y, image

@@ -1,21 +1,26 @@
 from abc import ABC
 import gym
-import numpy as np
 from src import Network
+from . processing import *
 
 
 class RaspEnv(gym.Env, ABC):
     def __init__(self):
         # The Discrete space allows a fixed range of non-negative numbers
         self.action_space = gym.spaces.Discrete(4)
+        # Shape of observation space
+        self.observation_shape = (8,)
         # The Box space represents an n-dimensional box
-        self.observation_space = gym.spaces.Box(low=np.array([-30.0, -30.0, -30.0, -30.0, -30.0, -30.0, 0.0, 0.0]),
+        self.observation_space = gym.spaces.Box(shape=self.observation_shape,
+                                                low=np.array([-30.0, -30.0, -30.0, -30.0, -30.0, -30.0, 0.0, 0.0]),
                                                 high=np.array([30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 710.0, 1280.0]),
                                                 dtype=np.float64)
         # Coordinates of red dot on pc screen
-        self.square = (None, None)
+        self.square = [0.0, 0.0]
         # Link with our Raspberry to receive observations
         self.network = Network()
+        # Record video from webcam number 0
+        self.cap = cv2.VideoCapture(0)
 
     def step(self, action: int):
         '''
@@ -35,12 +40,28 @@ class RaspEnv(gym.Env, ABC):
         :return: Tuple[np.ndarray, float, bool, dict]
         '''
 
-        # Get ax, ay, az, gx, gy, gz from server
+        # Read video recording
+        ret, frame = self.cap.read()
+
+        # Send action to Raspberry Pi
+        self.network.send(action)
+
+        # Get ax, ay, az, gx, gy, gz from Raspberry Pi
         obs = self.network.recv()
-        # Add red dot position to it
+
+        # Update location of red dot on PC screen
+        get_red_dot(self.square, frame, False)
+        self.square = np.random.rand(2)
+
+        # Add red dot position to observation
         obs += [e for e in self.square]
+        obs = np.asarray(obs)
+
         # Compute reward from red dot position
-        reward = self.compute_reward()
+        reward = np.random.rand(1)[0]#self.compute_reward()
+
+        # To allow cap to be used in a loop
+        cv2.waitKey(10)
 
         return obs, reward, False, {}
 
@@ -53,7 +74,7 @@ class RaspEnv(gym.Env, ABC):
         The process gets started by calling reset(), which returns an initial observation
         :return: list
         '''
-        return np.ndarray([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        return np.ones(self.observation_shape) * 1
 
     def render(self, mode='human'):
         pass
