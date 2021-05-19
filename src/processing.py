@@ -3,7 +3,7 @@ import numpy as np
 from typing import *
 
 
-def get_red_dot(square: List, frame: np.ndarray, display_images: bool) -> None:
+def get_red_dot(square: np.ndarray, frame: np.ndarray, display_images: bool) -> None:
     # Process the input image from webcam
     total, red, final = filter_image(frame)
 
@@ -73,6 +73,8 @@ def compute_red_dot(final: np.ndarray, frame: np.ndarray) -> Tuple[float, float,
             max_area = area
 
     image = np.copy(frame)
+    image[360 - 10:360 + 10, 640 - 10:640 + 10, :] = (255, 100, 100)
+
     if x is not None and y is not None:
         x, y = int(x), int(y)
         image[y - 10:y + 10, x - 10:x + 10, :] = (100, 100, 255)

@@ -2,6 +2,7 @@ from abc import ABC
 import gym
 from src import Network
 from . processing import *
+import time
 
 
 class RaspEnv(gym.Env, ABC):
@@ -21,6 +22,9 @@ class RaspEnv(gym.Env, ABC):
         self.network = Network()
         # Record video from webcam number 0
         self.cap = cv2.VideoCapture(0)
+        # Boolean value to tell whether we stopped training because we don't
+        # see the red dot or because the reward threshold has been reached
+        self.done = False
 
     def step(self, action: int):
         '''
@@ -40,25 +44,38 @@ class RaspEnv(gym.Env, ABC):
         :return: Tuple[np.ndarray, float, bool, dict]
         '''
 
-        # Read video recording
-        ret, frame = self.cap.read()
+        # try to get the first frame
+        if self.cap.isOpened():
+            # frame has shape (720, 1280, 3)
+            readSuccessful, frame = self.cap.read()
+        else:
+            raise (Exception("failed to open camera."))
 
         # Send action to Raspberry Pi
         self.network.send(action)
+
+        # Let a small time laps to PC before fetching the env's response
+        time.sleep(0.1)
 
         # Get ax, ay, az, gx, gy, gz from Raspberry Pi
         obs = self.network.recv()
 
         # Update location of red dot on PC screen
         get_red_dot(self.square, frame, False)
-        self.square = np.random.rand(2)
 
-        # Add red dot position to observation
-        obs += [e for e in self.square]
-        obs = np.asarray(obs)
+        # Stop training if no red dot is detected
+        if self.square[0] is None or self.square[1] is None:
+            obs += [e for e in [0.0, 0.0]]
+            obs = np.asarray(obs)
+            reward = 0.0
 
-        # Compute reward from red dot position
-        reward = np.random.rand(1)[0]#self.compute_reward()
+        else:
+            # Add red dot position to observation
+            obs += [e for e in self.square]
+            obs = np.asarray(obs)
+
+            # Compute reward from red dot position
+            reward = -self.compute_reward()
 
         # To allow cap to be used in a loop
         cv2.waitKey(10)
@@ -66,7 +83,7 @@ class RaspEnv(gym.Env, ABC):
         return obs, reward, False, {}
 
     def compute_reward(self):
-        distance = np.sqrt((self.square[0] - 355) ** 2 + (self.square[1] - 640) ** 2)
+        distance = np.sqrt(((self.square[0] - 360) / 360) ** 2 + ((self.square[1] - 640) / 640) ** 2)
         return distance
 
     def reset(self) -> np.ndarray:
