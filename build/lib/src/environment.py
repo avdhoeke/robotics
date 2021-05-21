@@ -45,13 +45,12 @@ class RaspEnv(gym.Env, ABC):
     @square.setter
     def square(self, s: list):
         self.square_ = s
-        if s[0] is None and s[1] is None:
-            print("Lost position of red dot !")
+        if s[0] is None or s[1] is None:
             self.trainable = False
         else:
             self.trainable = True
 
-    def step(self, action: int) -> Tuple[np.ndarray, float, bool, dict]:
+    def step(self, action: int):
         """
         The environment’s step function returns exactly what we need. In fact, step returns four values. These are:
         - observation (object): an environment-specific object representing your observation of the environment.
@@ -66,7 +65,7 @@ class RaspEnv(gym.Env, ABC):
                        (for example, it might contain the raw probabilities behind the environment’s last state change).
                        However, official evaluations of your agent are not allowed to use this for learning.
         :param action: int
-        :return: observation, reward, done, info
+        :return: Tuple[np.ndarray, float, bool, dict]
         """
 
         # The default resulting outcome is: keep training !
@@ -82,10 +81,16 @@ class RaspEnv(gym.Env, ABC):
         obs = self.network.recv()
 
         # Update location of red dot on PC screen
-        get_red_dot(env=self, display_images=False)
+        get_red_dot(self.square, self.frame, False)
 
         # Stop training if no red dot is detected
-        if not self.trainable:
+        if self.square[0] is None or self.square[1] is None:
+            obs += [e for e in [0.0, 0.0]]
+            obs = np.asarray(obs)
+            reward = 0.0
+            done = True
+
+        elif self.counter >= 10000:
             obs += [e for e in [0.0, 0.0]]
             obs = np.asarray(obs)
             reward = 0.0
@@ -93,7 +98,7 @@ class RaspEnv(gym.Env, ABC):
 
         else:
             # Add red dot position to observation
-            for e in self.square_:
+            for e in self.square:
                 obs.append(e)
             obs = np.asarray(obs)
 
@@ -106,8 +111,8 @@ class RaspEnv(gym.Env, ABC):
         return obs, reward, done, {}
 
     def compute_reward(self):
-        distance = np.sqrt(((self.square_[0] - 640) / 640) ** 2 + ((self.square_[1] - 360) / 360) ** 2)
-        #print("Reward value:", distance)
+        distance = np.sqrt(((self.square[0] - 640) / 640) ** 2 + ((self.square[1] - 360) / 360) ** 2)
+        print("Reward value:", distance)
         return distance
 
     def reset(self) -> np.ndarray:
@@ -129,6 +134,8 @@ class RaspEnv(gym.Env, ABC):
         for e in pos:
             obs.append(e)
         obs = np.asarray(obs)
+
+        print("Environment has been reset !")
 
         return obs
 

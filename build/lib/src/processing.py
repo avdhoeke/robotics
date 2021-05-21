@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
 from typing import *
+from . import RaspEnv
 
 
-def get_red_dot(env, display_images: bool) -> None:
+def get_red_dot(env: RaspEnv, display_images: bool) -> None:
 
     # Get attributes of environment instance
     frame = env.frame
@@ -24,11 +25,10 @@ def get_red_dot(env, display_images: bool) -> None:
     cv2.imshow('Original image with red square', image)
 
     # Set new square location
-    env.square = [x, y]
+    env.square_ = [x, y]
 
 
 def filter_image(frame: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-
     # Convert BGR to HSV format
     _ = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -62,7 +62,6 @@ def filter_image(frame: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]
 
 
 def compute_red_dot(final: np.ndarray, frame: np.ndarray) -> Tuple[Union[None, float], Union[None, float], np.ndarray]:
-
     # Dilatation of filtered image
     dilatation = cv2.dilate(final, np.ones((3, 3)))
     retval, labels, stats, centroids = cv2.connectedComponentsWithStats(dilatation)

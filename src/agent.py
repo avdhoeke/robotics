@@ -1,15 +1,15 @@
 from . processing import *
 from .environment import RaspEnv
 import tensorflow as tf
-tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 import warnings
-warnings.filterwarnings("ignore", category=UserWarning)
+import time
+import os
 from stable_baselines import PPO2
 from stable_baselines.common.env_checker import check_env
 from stable_baselines.common.callbacks import StopTrainingOnRewardThreshold, EvalCallback, CallbackList, CheckpointCallback
-import time
-import os
 from stable_baselines.common.vec_env import DummyVecEnv
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 class Agent:
@@ -25,38 +25,56 @@ class Agent:
 
     def train(self):
 
-        # Load latest model if available
         try:
+            # Get path of latest model
             path = os.getcwd()
             os.chdir(os.getcwd() + '/model_checkpoints')
+
+            # Process all the files in the folder
             files = [x for x in os.listdir() if x.endswith(".zip")]
             num = []
             for file in files:
                 num.append([int(x) for x in file.split('_') if x.isdigit()][0])
             filename = "rl_model_" + str(max(num)) + "_steps.zip"
-            print("Tentative: " + filename)
+
+            # Load most recent model
             self.model = PPO2.load(load_path=filename, env=DummyVecEnv([lambda: self.env]), tensorboard_log='./a2c_rasp_tensorboard/')
             print("Successfully loaded the previous model: " + filename)
+
+            # Return to root path
             os.chdir(path)
+
         except:
             # Vector-encode our new environment
             env = DummyVecEnv([lambda: self.env])
+
             # Create new model
             self.model = PPO2('MlpPolicy', env, verbose=1, tensorboard_log='./a2c_rasp_tensorboard/')
             print("Successfully created new model")
 
-        # Stop training if reward get close to zero
-        callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=-1.0, verbose=1)
+        # Stop training if reward gets close to zero
+        callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=-1e-2, verbose=1)
         eval_callback = EvalCallback(self.env, callback_on_new_best=callback_on_best, verbose=1)
 
         # Save model at regular time intervals
-        checkpoint_callback = CheckpointCallback(save_freq=3000, save_path='./model_checkpoints/')
+        checkpoint_callback = CheckpointCallback(save_freq=1000, save_path='./model_checkpoints/')
 
         # Chain callbacks together
         callback = CallbackList([eval_callback, checkpoint_callback])
 
         # Train model
-        self.model.learn(total_timesteps=int(1e10), callback=callback, tb_log_name="run", reset_num_timesteps=False)
+        #episode = 1
+        #while episode < 10:
+            # Update location of red dot
+        #    _ = self.env.square
+        #    if self.env.trainable:
+        #        print("Beginning episode number {}".format(episode))
+        self.model.learn(total_timesteps=int(1e10), callback=callback, tb_log_name="run")
+        #        episode += 1
+
+        # Save trained model
+        print("Training is finished ! Now saving the model into 'raspberry_agent'")
+        self.model.save("raspberry_agent")
 
     def evaluate(self):
 

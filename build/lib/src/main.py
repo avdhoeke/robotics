@@ -1,5 +1,5 @@
-from . import Agent
+from src import Agent
 
 if __name__ == "__main__":
     agent = Agent()
-    agent.run()
+    agent.train()

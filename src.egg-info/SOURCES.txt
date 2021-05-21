@@ -1,8 +1,13 @@
 setup.py
 src/__init__.py
 src/agent.py
+src/calibrate.py
+src/callback.py
+src/environment.py
 src/main.py
 src/network.py
+src/processing.py
+src/square.py
 src.egg-info/PKG-INFO
 src.egg-info/SOURCES.txt
 src.egg-info/dependency_links.txt
