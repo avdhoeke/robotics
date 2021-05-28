@@ -38,7 +38,7 @@ class Agent:
             filename = "rl_model_" + str(max(num)) + "_steps.zip"
 
             # Load most recent model
-            self.model = PPO2.load(load_path=filename, env=DummyVecEnv([lambda: self.env]), tensorboard_log='./a2c_rasp_tensorboard/')
+            self.model = PPO2.load(load_path=filename, env=DummyVecEnv([lambda: self.env]), tensorboard_log='./trial_2/')
             print("Successfully loaded the previous model: " + filename)
 
             # Return to root path
@@ -49,11 +49,11 @@ class Agent:
             env = DummyVecEnv([lambda: self.env])
 
             # Create new model
-            self.model = PPO2('MlpPolicy', env, verbose=1, tensorboard_log='./a2c_rasp_tensorboard/')
+            self.model = PPO2('MlpPolicy', env, verbose=1, tensorboard_log='./trial_2/')
             print("Successfully created new model")
 
         # Stop training if reward gets close to zero
-        callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=-1e-2, verbose=1)
+        callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=-0.1, verbose=1)
         eval_callback = EvalCallback(self.env, callback_on_new_best=callback_on_best, verbose=1)
 
         # Save model at regular time intervals
@@ -63,14 +63,7 @@ class Agent:
         callback = CallbackList([eval_callback, checkpoint_callback])
 
         # Train model
-        #episode = 1
-        #while episode < 10:
-            # Update location of red dot
-        #    _ = self.env.square
-        #    if self.env.trainable:
-        #        print("Beginning episode number {}".format(episode))
         self.model.learn(total_timesteps=int(1e10), callback=callback, tb_log_name="run")
-        #        episode += 1
 
         # Save trained model
         print("Training is finished ! Now saving the model into 'raspberry_agent'")
@@ -108,7 +101,7 @@ class Agent:
 
                 if self.running:
                     # Compute action based on previous observation
-                    action, _states = self.model.predict(obs)
+                    action, _states = self.model.predict(obs, deterministic=True)
                     # Send action to server to update location of red dot
                     self.env.network.send(action)
                     # Give the Rasp 0.1s to move red dot

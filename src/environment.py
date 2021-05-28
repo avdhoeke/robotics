@@ -13,8 +13,8 @@ class RaspEnv(gym.Env, ABC):
         self.observation_shape = (8,)
         # The Box space represents an n-dimensional box
         self.observation_space = gym.spaces.Box(shape=self.observation_shape,
-                                                low=np.array([-30.0, -30.0, -30.0, -30.0, -30.0, -30.0, 0.0, 0.0]),
-                                                high=np.array([30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 1280.0, 720.0]),
+                                                low=np.array([-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0]),
+                                                high=np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
                                                 dtype=np.float64)
         # Coordinates of red dot on pc screen
         self.square_ = [0.0, 0.0]
@@ -84,30 +84,38 @@ class RaspEnv(gym.Env, ABC):
         # Update location of red dot on PC screen
         get_red_dot(env=self, display_images=False)
 
-        # Stop training if no red dot is detected
+        # Prevent agent from learning if red dot disappears
         if not self.trainable:
             obs += [e for e in [0.0, 0.0]]
             obs = np.asarray(obs)
-            reward = 0.0
+            reward = np.random.rand(1)[0]
             done = True
 
         else:
+            # normalize the position of the dot
+            x, y = (self.square_[0] - 640) / 640, (self.square_[1] - 360) / 360
+
             # Add red dot position to observation
-            for e in self.square_:
-                obs.append(e)
+            obs.append(x)
+            obs.append(y)
             obs = np.asarray(obs)
 
             # Compute reward from red dot position
-            reward = -self.compute_reward()
+            reward = self.compute_reward(x, y)
 
         # To allow cap to be used in a loop
         cv2.waitKey(10)
 
         return obs, reward, done, {}
 
-    def compute_reward(self):
-        distance = np.sqrt(((self.square_[0] - 640) / 640) ** 2 + ((self.square_[1] - 360) / 360) ** 2)
-        #print("Reward value:", distance)
+    def compute_reward(self, x: float, y: float) -> float:
+
+        # Compute euclidean distance
+        # distance = -np.sqrt(x ** 2 + y ** 2)
+
+        # Compute distance with "gaussian kernel"
+        distance = 1 - np.exp(np.sqrt(x ** 2 + y ** 2))
+
         return distance
 
     def reset(self) -> np.ndarray:
@@ -126,11 +134,11 @@ class RaspEnv(gym.Env, ABC):
         # Get Raspberry acceleration and gyroscopic data
         obs = self.network.recv()
 
-        for e in pos:
-            obs.append(e)
+        obs += [e for e in [0.0, 0.0]]
         obs = np.asarray(obs)
 
-        return obs
+        #return obs
+        return np.zeros(8)
 
     def render(self, mode='human'):
         pass
