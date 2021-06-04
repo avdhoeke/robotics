@@ -1,0 +1,33 @@
+\documentclass[12pt,a4paper]{report}
+
+
+\input{preamble.tex}
+
+
+\newcommand{\mychapter}[2]{
+    \setcounter{chapter}{#1}
+    \setcounter{section}{1}
+    \chapter*{#2}
+    \addcontentsline{toc}{chapter}{#2}
+}
+
+\pagestyle{headings}
+
+\begin{document}
+
+\input{cover.tex}
+
+\tableofcontents
+
+\medskip
+
+\input{project.tex}
+
+%--------- BIBLIOGRAPHY ---------------
+
+\medskip
+
+\bibliographystyle{unsrt}
+\bibliography{sample}
+
+\end{document}
