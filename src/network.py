@@ -1,7 +1,6 @@
 import socket
 import pickle
 import struct
-import numpy as np
 
 
 class Network:

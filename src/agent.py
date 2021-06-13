@@ -82,8 +82,9 @@ class Agent:
         # Save trained model
         print("Training is finished!")
 
-    def evaluate(self):
+    def evaluate(self, tensorboard_log: str) -> None:
 
+        self.create_model(tensorboard_log)
         obs = self.env.reset()
 
         while True:

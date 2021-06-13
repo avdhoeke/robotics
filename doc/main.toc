@@ -2,8 +2,11 @@
 \contentsline {chapter}{\numberline {1}Introduction}{2}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Configuration of the Raspberry Pi}{3}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Webcam image processing}{4}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Reinforcement Learning agents}{4}{section.1.3}%
-\contentsline {chapter}{\numberline {2}Appendix}{5}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Code on the Raspberry Pi}{5}{section.2.1}%
-\contentsline {subsection}{\numberline {2.1.1}server.py}{5}{subsection.2.1.1}%
-\contentsline {subsection}{\numberline {2.1.2}rasp.py}{7}{subsection.2.1.2}%
+\contentsline {section}{\numberline {1.3}Reinforcement Learning agents}{7}{section.1.3}%
+\contentsline {chapter}{\numberline {2}Appendix}{8}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Code on the Raspberry Pi}{8}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}server.py}{8}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}rasp.py}{10}{subsection.2.1.2}%
+\contentsline {section}{\numberline {2.2}OpenCV code}{11}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}calibrate.py}{11}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}processing.py}{14}{subsection.2.2.2}%

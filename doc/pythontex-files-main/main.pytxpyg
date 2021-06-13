@@ -310,3 +310,190 @@
         \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{sense}\PYG{o}{.}\PYG{n}{set\PYGZus{}pixel}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{led}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{led}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{,} \PYG{p}{(}\PYG{l+m+mi}{255}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{)}\PYG{p}{)}
 \end{pytx@SaveVerbatim}
 
+\begin{pytx@SaveVerbatim}[commandchars=\\\{\}]{pytx@py@default@defaultverb@2}
+\PYG{k+kn}{import} \PYG{n+nn}{cv2}
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
+
+
+\PYG{k}{def} \PYG{n+nf}{run}\PYG{p}{(}\PYG{p}{)}\PYG{p}{:}
+    \PYG{k}{while} \PYG{k+kc}{True}\PYG{p}{:}
+
+        \PYG{k}{def} \PYG{n+nf}{nothing}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{:}
+            \PYG{k}{pass}
+
+        \PYG{c+c1}{\PYGZsh{} Create a window}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{namedWindow}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} create trackbars for color change}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{createTrackbar}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{HMin}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{179}\PYG{p}{,} \PYG{n}{nothing}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} Hue is from 0\PYGZhy{}179 for Opencv}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{createTrackbar}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{SMin}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{,} \PYG{n}{nothing}\PYG{p}{)}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{createTrackbar}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{VMin}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{,} \PYG{n}{nothing}\PYG{p}{)}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{createTrackbar}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{HMax}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{179}\PYG{p}{,} \PYG{n}{nothing}\PYG{p}{)}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{createTrackbar}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{SMax}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{,} \PYG{n}{nothing}\PYG{p}{)}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{createTrackbar}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{VMax}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{,} \PYG{n}{nothing}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Set default value for MAX HSV trackbars.}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{setTrackbarPos}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{HMax}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{179}\PYG{p}{)}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{setTrackbarPos}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{SMax}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{)}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{setTrackbarPos}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{VMax}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Initialize to check if HSV min/max value changes}
+        \PYG{n}{hMin} \PYG{o}{=} \PYG{n}{sMin} \PYG{o}{=} \PYG{n}{vMin} \PYG{o}{=} \PYG{n}{hMax} \PYG{o}{=} \PYG{n}{sMax} \PYG{o}{=} \PYG{n}{vMax} \PYG{o}{=} \PYG{l+m+mi}{0}
+        \PYG{n}{phMin} \PYG{o}{=} \PYG{n}{psMin} \PYG{o}{=} \PYG{n}{pvMin} \PYG{o}{=} \PYG{n}{phMax} \PYG{o}{=} \PYG{n}{psMax} \PYG{o}{=} \PYG{n}{pvMax} \PYG{o}{=} \PYG{l+m+mi}{0}
+
+        \PYG{c+c1}{\PYGZsh{} OpenCV function}
+        \PYG{n}{WINDOW\PYGZus{}NAME} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Calibration of filter}\PYG{l+s+s2}{\PYGZdq{}}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{namedWindow}\PYG{p}{(}\PYG{n}{WINDOW\PYGZus{}NAME}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} open a window to show debugging images}
+        \PYG{n}{vc} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{VideoCapture}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} Initialize the default camera}
+
+        \PYG{k}{try}\PYG{p}{:}
+            \PYG{k}{if} \PYG{n}{vc}\PYG{o}{.}\PYG{n}{isOpened}\PYG{p}{(}\PYG{p}{)}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} try to get the first frame}
+                \PYG{p}{(}\PYG{n}{readSuccessful}\PYG{p}{,} \PYG{n}{frame}\PYG{p}{)} \PYG{o}{=} \PYG{n}{vc}\PYG{o}{.}\PYG{n}{read}\PYG{p}{(}\PYG{p}{)}
+            \PYG{k}{else}\PYG{p}{:}
+                \PYG{k}{raise} \PYG{p}{(}\PYG{n+ne}{Exception}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{failed to open camera.}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{)}
+
+            \PYG{k}{while} \PYG{n}{readSuccessful}\PYG{p}{:}
+
+                \PYG{c+c1}{\PYGZsh{} get current positions of all trackbars}
+                \PYG{n}{hMin} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{getTrackbarPos}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{HMin}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+                \PYG{n}{sMin} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{getTrackbarPos}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{SMin}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+                \PYG{n}{vMin} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{getTrackbarPos}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{VMin}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+
+                \PYG{n}{hMax} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{getTrackbarPos}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{HMax}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+                \PYG{n}{sMax} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{getTrackbarPos}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{SMax}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+                \PYG{n}{vMax} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{getTrackbarPos}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{VMax}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+
+                \PYG{c+c1}{\PYGZsh{} Set minimum and max HSV values to display}
+                \PYG{n}{lower} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{n}{hMin}\PYG{p}{,} \PYG{n}{sMin}\PYG{p}{,} \PYG{n}{vMin}\PYG{p}{]}\PYG{p}{)}
+                \PYG{n}{upper} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{n}{hMax}\PYG{p}{,} \PYG{n}{sMax}\PYG{p}{,} \PYG{n}{vMax}\PYG{p}{]}\PYG{p}{)}
+
+                \PYG{c+c1}{\PYGZsh{} Create HSV Image and threshold into a range.}
+                \PYG{n}{hsv} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{cvtColor}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{,} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{COLOR\PYGZus{}BGR2HSV}\PYG{p}{)}
+                \PYG{n}{mask} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{inRange}\PYG{p}{(}\PYG{n}{hsv}\PYG{p}{,} \PYG{n}{lower}\PYG{p}{,} \PYG{n}{upper}\PYG{p}{)}
+                \PYG{n}{output} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{bitwise\PYGZus{}and}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{,} \PYG{n}{frame}\PYG{p}{,} \PYG{n}{mask}\PYG{o}{=}\PYG{n}{mask}\PYG{p}{)}
+
+                \PYG{c+c1}{\PYGZsh{} Print if there is a change in HSV value}
+                \PYG{k}{if} \PYG{p}{(}\PYG{p}{(}\PYG{n}{phMin} \PYG{o}{!=} \PYG{n}{hMin}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}\PYG{n}{psMin} \PYG{o}{!=} \PYG{n}{sMin}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}\PYG{n}{pvMin} \PYG{o}{!=} \PYG{n}{vMin}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}\PYG{n}{phMax} \PYG{o}{!=} \PYG{n}{hMax}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}\PYG{n}{psMax} \PYG{o}{!=} \PYG{n}{sMax}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}
+                        \PYG{n}{pvMax} \PYG{o}{!=} \PYG{n}{vMax}\PYG{p}{)}\PYG{p}{)}\PYG{p}{:}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{(hMin = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{ , sMin = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{, vMin = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{), (hMax = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{ , sMax = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{, vMax = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{)}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{\PYGZpc{}} \PYG{p}{(}
+                        \PYG{n}{hMin}\PYG{p}{,} \PYG{n}{sMin}\PYG{p}{,} \PYG{n}{vMin}\PYG{p}{,} \PYG{n}{hMax}\PYG{p}{,} \PYG{n}{sMax}\PYG{p}{,} \PYG{n}{vMax}\PYG{p}{)}\PYG{p}{)}
+                    \PYG{n}{phMin} \PYG{o}{=} \PYG{n}{hMin}
+                    \PYG{n}{psMin} \PYG{o}{=} \PYG{n}{sMin}
+                    \PYG{n}{pvMin} \PYG{o}{=} \PYG{n}{vMin}
+                    \PYG{n}{phMax} \PYG{o}{=} \PYG{n}{hMax}
+                    \PYG{n}{psMax} \PYG{o}{=} \PYG{n}{sMax}
+                    \PYG{n}{pvMax} \PYG{o}{=} \PYG{n}{vMax}
+
+                \PYG{c+c1}{\PYGZsh{} Display output image}
+                \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{output}\PYG{p}{)}
+                \PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{}}
+
+                \PYG{c+c1}{\PYGZsh{} Set refreshing time}
+                \PYG{n}{key} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{waitKey}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{)}
+                \PYG{k}{if} \PYG{n}{key} \PYG{o}{==} \PYG{l+m+mi}{27}\PYG{p}{:}  \PYG{c+c1}{\PYGZsh{} exit on ESC}
+                    \PYG{k}{break}
+                \PYG{c+c1}{\PYGZsh{} Get Image from camera}
+                \PYG{n}{readSuccessful}\PYG{p}{,} \PYG{n}{frame} \PYG{o}{=} \PYG{n}{vc}\PYG{o}{.}\PYG{n}{read}\PYG{p}{(}\PYG{p}{)}
+        \PYG{k}{finally}\PYG{p}{:}
+            \PYG{n}{vc}\PYG{o}{.}\PYG{n}{release}\PYG{p}{(}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} close the camera}
+            \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{destroyWindow}\PYG{p}{(}\PYG{n}{WINDOW\PYGZus{}NAME}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} close the window}
+
+
+\PYG{n}{run}\PYG{p}{(}\PYG{p}{)}
+\end{pytx@SaveVerbatim}
+
+\begin{pytx@SaveVerbatim}[commandchars=\\\{\}]{pytx@py@default@defaultverb@3}
+\PYG{k+kn}{import} \PYG{n+nn}{cv2}
+\PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{o}{*}
+
+
+\PYG{k}{def} \PYG{n+nf}{get\PYGZus{}red\PYGZus{}dot}\PYG{p}{(}\PYG{n}{env}\PYG{p}{,} \PYG{n}{display\PYGZus{}images}\PYG{p}{:} \PYG{n+nb}{bool}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+
+    \PYG{c+c1}{\PYGZsh{} Get attributes of environment instance}
+    \PYG{n}{frame} \PYG{o}{=} \PYG{n}{env}\PYG{o}{.}\PYG{n}{frame}
+
+    \PYG{c+c1}{\PYGZsh{} Process the input image from webcam}
+    \PYG{n}{total}\PYG{p}{,} \PYG{n}{red}\PYG{p}{,} \PYG{n}{final} \PYG{o}{=} \PYG{n}{filter\PYGZus{}image}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Place our red dot on image}
+    \PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{image} \PYG{o}{=} \PYG{n}{compute\PYGZus{}red\PYGZus{}dot}\PYG{p}{(}\PYG{n}{final}\PYG{p}{,} \PYG{n}{frame}\PYG{p}{)}
+
+    \PYG{k}{if} \PYG{n}{display\PYGZus{}images}\PYG{p}{:}
+        \PYG{c+c1}{\PYGZsh{} Display the resulting filtered images}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Image filtered with mask}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{total}\PYG{p}{)}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Filtered image with red dominance}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{red}\PYG{p}{)}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Filtered image with binary threshold}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{final}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Display final image with red square on it}
+    \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Original image with red square}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{image}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Set new square location}
+    \PYG{n}{env}\PYG{o}{.}\PYG{n}{square} \PYG{o}{=} \PYG{p}{[}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{]}
+
+
+\PYG{k}{def} \PYG{n+nf}{filter\PYGZus{}image}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{n}{Tuple}\PYG{p}{[}\PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{]}\PYG{p}{:}
+
+    \PYG{c+c1}{\PYGZsh{} Convert BGR to HSV format}
+    \PYG{n}{\PYGZus{}} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{cvtColor}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{,} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{COLOR\PYGZus{}BGR2HSV}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} lower boundary RED color range values; Hue (0 \PYGZhy{} 10)}
+    \PYG{n}{lower1} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{217}\PYG{p}{]}\PYG{p}{)}
+    \PYG{n}{upper1} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{]}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} upper boundary RED color range values; Hue (90 \PYGZhy{} 180)}
+    \PYG{n}{lower2} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{90}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{230}\PYG{p}{]}\PYG{p}{)}
+    \PYG{n}{upper2} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{179}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{]}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Apply filters defined previously}
+    \PYG{n}{lower\PYGZus{}mask} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{inRange}\PYG{p}{(}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{lower1}\PYG{p}{,} \PYG{n}{upper1}\PYG{p}{)}
+    \PYG{n}{upper\PYGZus{}mask} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{inRange}\PYG{p}{(}\PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{lower2}\PYG{p}{,} \PYG{n}{upper2}\PYG{p}{)}
+
+    \PYG{n}{full\PYGZus{}mask} \PYG{o}{=} \PYG{n}{lower\PYGZus{}mask} \PYG{o}{+} \PYG{n}{upper\PYGZus{}mask}
+
+    \PYG{n}{total} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{bitwise\PYGZus{}and}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{,} \PYG{n}{frame}\PYG{p}{,} \PYG{n}{mask}\PYG{o}{=}\PYG{n}{full\PYGZus{}mask}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Additional Red color filter}
+    \PYG{n}{low\PYGZus{}red} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{)}
+    \PYG{n}{high\PYGZus{}red} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{180}\PYG{p}{,} \PYG{l+m+mi}{150}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{]}\PYG{p}{)}
+    \PYG{n}{red\PYGZus{}mask} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{inRange}\PYG{p}{(}\PYG{n}{total}\PYG{p}{,} \PYG{n}{low\PYGZus{}red}\PYG{p}{,} \PYG{n}{high\PYGZus{}red}\PYG{p}{)}
+    \PYG{n}{red} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{bitwise\PYGZus{}and}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{,} \PYG{n}{frame}\PYG{p}{,} \PYG{n}{mask}\PYG{o}{=}\PYG{n}{red\PYGZus{}mask}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Threshold the resulting image}
+    \PYG{n}{h}\PYG{p}{,} \PYG{n}{s}\PYG{p}{,} \PYG{n}{v} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{n}{red}\PYG{p}{)}
+    \PYG{n}{ret}\PYG{p}{,} \PYG{n}{final} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{threshold}\PYG{p}{(}\PYG{n}{v}\PYG{p}{,} \PYG{l+m+mi}{150}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{,} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{THRESH\PYGZus{}BINARY}\PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{total}\PYG{p}{,} \PYG{n}{red}\PYG{p}{,} \PYG{n}{final}
+
+
+\PYG{k}{def} \PYG{n+nf}{compute\PYGZus{}red\PYGZus{}dot}\PYG{p}{(}\PYG{n}{final}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{frame}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{n}{Tuple}\PYG{p}{[}\PYG{n}{Union}\PYG{p}{[}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{]}\PYG{p}{,} \PYG{n}{Union}\PYG{p}{[}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{]}\PYG{p}{,} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{]}\PYG{p}{:}
+
+    \PYG{c+c1}{\PYGZsh{} Dilatation of filtered image}
+    \PYG{n}{dilatation} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{dilate}\PYG{p}{(}\PYG{n}{final}\PYG{p}{,} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)}\PYG{p}{)}\PYG{p}{)}
+    \PYG{n}{retval}\PYG{p}{,} \PYG{n}{labels}\PYG{p}{,} \PYG{n}{stats}\PYG{p}{,} \PYG{n}{centroids} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{connectedComponentsWithStats}\PYG{p}{(}\PYG{n}{dilatation}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Compute position of biggest red area}
+    \PYG{n}{x}\PYG{p}{,} \PYG{n}{y} \PYG{o}{=} \PYG{k+kc}{None}\PYG{p}{,} \PYG{k+kc}{None}
+    \PYG{n}{max\PYGZus{}area} \PYG{o}{=} \PYG{k+kc}{None}
+
+    \PYG{k}{for} \PYG{n}{stat}\PYG{p}{,} \PYG{n}{center} \PYG{o+ow}{in} \PYG{n+nb}{zip}\PYG{p}{(}\PYG{n}{stats}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{p}{]}\PYG{p}{,} \PYG{n}{centroids}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{p}{]}\PYG{p}{)}\PYG{p}{:}
+        \PYG{n}{area} \PYG{o}{=} \PYG{n}{stat}\PYG{p}{[}\PYG{l+m+mi}{4}\PYG{p}{]}
+
+        \PYG{k}{if} \PYG{p}{(}\PYG{n}{max\PYGZus{}area} \PYG{o+ow}{is} \PYG{k+kc}{None}\PYG{p}{)} \PYG{o+ow}{or} \PYG{p}{(}\PYG{n}{area} \PYG{o}{\PYGZgt{}} \PYG{n}{max\PYGZus{}area}\PYG{p}{)}\PYG{p}{:}
+            \PYG{n}{x}\PYG{p}{,} \PYG{n}{y} \PYG{o}{=} \PYG{n}{center}
+            \PYG{n}{max\PYGZus{}area} \PYG{o}{=} \PYG{n}{area}
+
+    \PYG{n}{image} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{copy}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Put blue square at the center of the image}
+    \PYG{n}{image}\PYG{p}{[}\PYG{l+m+mi}{360} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{10}\PYG{p}{:}\PYG{l+m+mi}{360} \PYG{o}{+} \PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{640} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{10}\PYG{p}{:}\PYG{l+m+mi}{640} \PYG{o}{+} \PYG{l+m+mi}{10}\PYG{p}{,} \PYG{p}{:}\PYG{p}{]} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mi}{255}\PYG{p}{,} \PYG{l+m+mi}{100}\PYG{p}{,} \PYG{l+m+mi}{100}\PYG{p}{)}
+
+    \PYG{k}{if} \PYG{n}{x} \PYG{o+ow}{is} \PYG{o+ow}{not} \PYG{k+kc}{None} \PYG{o+ow}{and} \PYG{n}{y} \PYG{o+ow}{is} \PYG{o+ow}{not} \PYG{k+kc}{None}\PYG{p}{:}
+        \PYG{n}{x}\PYG{p}{,} \PYG{n}{y} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{,} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}
+        \PYG{n}{image}\PYG{p}{[}\PYG{n}{y} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{10}\PYG{p}{:}\PYG{n}{y} \PYG{o}{+} \PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{x} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{10}\PYG{p}{:}\PYG{n}{x} \PYG{o}{+} \PYG{l+m+mi}{10}\PYG{p}{,} \PYG{p}{:}\PYG{p}{]} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mi}{100}\PYG{p}{,} \PYG{l+m+mi}{100}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n+nb}{float}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}\PYG{p}{,} \PYG{n}{image}
+
+    \PYG{k}{else}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{image}
+\end{pytx@SaveVerbatim}
+
