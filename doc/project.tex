@@ -1,4 +1,4 @@
-\chapter{Introduction}
+\mychapter{1}{Introduction}
 
 In this robotics class, we consider the task of making a person hold his/her Raspberry Pi in front of a laptop's webcam.  The Raspberry Pi, equipped with its sense hat,  allows to display a single red dot on its LED matrix so that the webcam can monitor it. The goal of this project is to ensure that the red dot always remains as close as possible to the webcam's captured image. This must particularly hold if the person shakes, moves, or rotates the Raspberry Pi in front of the webcam. If the Raspberry Pi's LED matrix is placed too far from the webcam's image center, the red dot should be placed as close as possible to the latter.
 
@@ -91,7 +91,7 @@ The careful reader will however have noticed that the red dot itself was not cap
   \begin{minipage}[b]{0.45\linewidth}
    \centering
    \includegraphics[width=7cm,height=5cm]{Images/original.png}
-   \caption{Original webcam image with no filtering.}
+   \caption{Original webcam image with the computed red dot position in red and image center in purple.}
    \label{opencv:original}
   \end{minipage}
 \hfill
@@ -122,9 +122,100 @@ The careful reader will however have noticed that the red dot itself was not cap
 
 Instead of computing the center of a rectangle, it simply computes the center of an arc which gives approximately the same result. Doing so revealed the capturing of the dot's contour to be surprisingly robust against changes in environmental light. The agent therefore benefits from a processing routine \texttt{\detokenize{get_red_dot()}} that allows it to have a reliable access to the red dot's position on the webcam image.
 
-\section{Reinforcement Learning agents}
+\section{Set up of the environment}
 
-\chapter{Appendix}
+The next step of the project consists in creating an environment for the RL agent. For this we will use the OpenAI Gym library. The requirements on our custom environment are the following:
+
+\begin{itemize}
+	\item Inherit from the gym's environment class;
+	\item Define an action and observation space;
+	\item Implement the \texttt{\detokenize{step()}} and \texttt{\detokenize{reset()}} methods.
+\end{itemize}
+
+The code for this new environment is given in section \ref{environment}. Since there are 5 different actions to be considered, the action space is a 5-dimensional discrete set. The observation space on the other hand is made of the acceleration $(a_x, a_y, a_z)$ and gyroscopic $(g_x, g_y, g_z)$ data as well as the position of the red dot $(x,y)$ computed by the \texttt{\detokenize{get_red_dot()}} routine, which results in a 8-dimensional box. It is important to note that both the frame of the webcam image and the position of the red dot on it are declared as properties of the \texttt{\detokenize{RaspEnv}} class. When called during training, the \texttt{\detokenize{get_red_dot()}} routine will update the class' frame via OpenCV's \texttt{\detokenize{VideoCapture}}'s instance and set the red dot to the detected position. The square setter therefore allows to make sure the agent is trainable when updating the dot's position by making sure it is not set to \texttt{\detokenize{None}} (i.e., the red dot is lost on the image).
+The environment's \texttt{\detokenize{step()}} function is called iteratively during training and therefore does not need any additional internal or external \texttt{\detokenize{for}} loop. It simply sends the action prescribed by the agent, waits 0.2 seconds for the Pi to execute it before constructing it's observation based on the acceleration and gyroscope sent by the Pi and the new (normalized) dot position. The normalization is done using the relative distance to the image center. Let us note that if the new dot position is \texttt{\detokenize{None}}, the environment is being reset before resuming training. Also note that the red dot is assigned to a new random position every time the environment is being reset.
+A last key component of our environment is the reward associated to each state-action pair. Following the update of the red dot's position, we used the normalized distance to the image center to compute the associated reward. As will be highlighted in the results, we used the exponential of the euclidean distance as a reward measure, the graph of which is displayed on figure \ref{reward_dist}.
+
+\begin{equation}
+	r(x,y) = 1 - e^{\sqrt{x^2 + y^2}},
+	\label{gaussian_reward}
+\end{equation}
+
+where $x$ and $y$ are the normalized coordinates with respect to the image center.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.35]{Images/reward.eps}
+	\caption{Reward distribution. The exponential of the euclidean distance is aimed to further penalize large distances to the image center.}
+	\label{reward_dist}
+\end{figure}
+
+The project set up is now complete; our agent benefits from a gym environment in which it can learn. It is also able to detect the red LED light on the Pi's LED matrix and communicate with it. To make our agent learns how to maintain the red dot centered on the webcam image, we need to choose a dedicated RL algorithm and train it, which is the purpose of the next chapter.
+
+\mychapter{2}{Results}
+
+In order to train our agent in the environment we just set up, we simply need to choose a RL algorithm and train it in this environment for a predefined number of time steps. A key feature of this project is the ability of the user to stop training at a certain moment and to be able to resume training at the stage where he/she left. This is done using checkpoint callbacks every 1000 time steps. Each run therefore results in a partially trained agent stored in the "model checkpoints" folder of the code. At the beginning of each run, the agent's \texttt{\detokenize{train()}} function will try to load the most recent model (\texttt{\detokenize{load_model()}}) and if it does not find any, it will simply create a new one (\texttt{\detokenize{create_model()}}). Also note that the tensorboard logs are stored in a predefined path in order to monitor the training of the agent during and after training.  The code relative to the agent is given in section \ref{agent}. In the following sections, we will analyze and compare the performances of the actor-critic PPO2 algorithm from stable-baselines and the Deep-Q network approach.
+
+\section{PPO2}
+
+The first algorithm I investigated is the actor-critic PPO2 algorithm of the stable-baseline library. Although PPO2 has a few hyperparameters one could tune, I decided to go with the default parameters for this first agent. Besides,  two important aspects of this first run significantly affected the learning process:
+
+\begin{enumerate}
+	\item The observation space has large lower and upper bounds;
+	\item The negative normalized euclidean distance between the red dot's position and the image center is used as a reward.
+\end{enumerate}
+
+Doing so produces a reward that potentially ranges from $0$ to $-1$ (location of one corner). In the first trial, the Raspberry Pi was maintained in the same position in order to verify that the agent is able to place the red dot at the desired location without any perturbation of the Pi's position and orientation. In these settings, the agent experienced a first drop in discounted reward before starting to learn after approximatively $6000$ time steps.  Figure \ref{reward_dist} indeed shows this trend. The sudden drops around $10000$ and $27000$ time steps are due to the resuming of training. The signal indeed drops suddenly before stabilizing around reward values experienced by the end of the last run. One could therefore argue that this approach is an instance of curriculum learning where the agents benefits from knowledge acquired during previous runs while being trained.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.2]{Images/ppo2_1.eps}
+	\caption{Learning curve of the PPO2 agent.  Discounted reward for the first 37500 time steps using default hyperparameters and negative normalized euclidean distances as rewards. The sudden drops around $10000$ and $27000$ are due to the resuming of training.}
+	\label{reward_dist}
+\end{figure}
+
+While the curves on figure \ref{reward_dist} show the presence of learning, the resulting policy only showed a slight tendency to center the red dot on the webcam image. To improve these results, I decided to do two important modifications of the agent's implementation:
+
+\begin{enumerate}
+	\item Use the reward of equation \ref{gaussian_reward} to further penalize large distances;
+	\item Reduce the bounds of the observation space to be in $[-1, 1]$.
+\end{enumerate}
+
+I then applied the same strategy as before, but for a higher number of time steps. At first, I let the agent learn statically, for $27000$ time steps i.e., with a fixed position of the Pi. Afterwards, I could already enjoy an agent that was able to center the red dot on the webcam under small motion of the Pi. Doing so for another $39000$ time steps during which the difficulty of the task increased led to a trained agent. This means that during these remaining time steps, I translated and rotated the Pi in every direction up to the point where it was "hardly" able to re-center the dot. This limit of feasibility increased throughout the training and finally allowed the agent to perform well even when the Pi was rotated by more than $90^{\circ}$. This learning process is shown on figure \ref{reward_dist2} where despite an increasing task complexity, the agent was able to maintain a slightly decreasing discounted reward in time. This time, the sudden drops in discounted reward are the result of both an increased task complexity (sudden rotation of the Pi) and/or the resuming of training. This agent constitutes the best result obtained in this project. The reader is invited to watch the \href{https://youtu.be/VGtoMPvjIwM}{demonstration video} to see how it performs in real life.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.2]{Images/ppo2_2.eps}
+	\caption{Learning curve of the PPO2 agent with rewards computed with equation \ref{gaussian_reward}. During the first $27000$ time steps, the Pi was hold fixed. The Pi was then rotated and translated during the remaining time steps with an increased task complexity, hence the slightly decreasing tendency of the learning curve.}
+	\label{reward_dist2}
+\end{figure}
+
+\section{QDN}
+
+A second and last agent was also implemented using the Deep-Q Network approach. In contrast to PPO2, this agent requires a careful tuning of its parameters in order to experience learning. The \texttt{\detokenize{config}} attribute of the agent class given in section \ref{agent} stores custom values for the DQN agent:
+
+\begin{itemize}
+	\item \texttt{\detokenize{learning_starts}}: timesteps used to fill experience buffer - set to 32;
+	\item \texttt{\detokenize{target_network_update_freq}}: update the target network every - set to 100;
+	\item \texttt{\detokenize{learning_rate}} : learning rate for adam optimizer - set to 0.001.
+\end{itemize}
+
+Despite tuning these hyperparameters and maintaining the Pi in a fixed position, the agent suffered from very slow learning, as shown on figure \ref{reward_dist3}. It is important to note that here we plot the reward obtained at every time step where one time step is the process of selecting an action and collecting the associated reward. In contrast, PPO2 considers a time steps to be a batch of 8 of such processes for which the discounted reward is the sum of the individual rewards obtained in that batch. The approximate number of $180000$ time steps in figure \ref{reward_dist3} would therefore correspond to $22500$ time steps in figure \ref{reward_dist2}. Note that again, drops in figure \ref{reward_dist3} indicate the resuming of training.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.2]{Images/dqn.eps}
+	\caption{Learning curve of the DQN agent. Despite tuning some of its hyperparameters and maintaining the Pi in a fixed position, the agent suffered from a very slow training.}
+	\label{reward_dist3}
+\end{figure}
+
+As a result, the DQN agent does not perform as well as the PPO2 agent exposed in the previous section.  Further training and hyperparameter tuning could however produce better policies and is subject to future work. More importantly, this second agent displays the capacity of the underlying code to support other agents than PPO2 for which hyperparameters would need to be tuned wisely. Future efforts could therefore be spent on performing such tuning while benefiting from a robust training infrastructure that includes curriculum learning.
+
+\section{Conclusion}
+
+In this work, we presented an approach to solve the following problem: a person is allowed to hold a Raspberry Pi in front of a laptop's front camera. The goal is to train a RL agent so that the red light on the Pi's LED matrix is as close a possible to the webcam's image center despite the Pi being moved and/or rotated. To achieve such performance, we started by ensuring a communication between the agent on the PC side and the Pi on the server side using sockets. We used OpenCV to detect the position of the red dot on the webcam image. Results indicate that this position can be reliably computed even in the presence of daily light. After giving access to the Pi's acceleration and gyroscopic data to the agent, we created a custom gym environment in which the agent may learn. By carefully shaping the reward function, we were able to train a PPO2 agent that is capable of centering the red dot even if the Pi is being generously rotated and/or translated with respect to its centered position. In addition, we demonstrated the capacity of the underlying code to support other types of agents such as DQN that could potentially require a wise tuning of their hyperparameters. Future efforts could therefore be spent on training such agents on a large number of time steps thanks to the capacity of the code to provide curriculum learning across different runs.  Results of this work can be found in the \href{https://youtu.be/VGtoMPvjIwM}{demonstration video} as well as on the \href{https://github.com/avdhoeke/robotics}{github repository}.
+
+\mychapter{3}{Appendix}
 
 \section{Code on the Raspberry Pi}
 
@@ -246,6 +337,39 @@ class Raspberry:
 
 \end{pyverbatim}
 
+\section{Code on the PC}
+\subsection{network.py}
+\label{pc_code}
+
+\begin{pyverbatim}
+import socket
+import pickle
+import struct
+
+
+class Network:
+
+    def __init__(self):
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        self.host = "192.168.1.40"
+        self.port = 9395
+        self.addr = (self.host, self.port)
+        self.client.connect(self.addr)
+
+    def send(self, data) -> None:
+        data = pickle.dumps(data)
+        self.client.sendall(struct.pack('>i', len(data)))
+        self.client.sendall(data)
+
+    def recv(self) -> list:
+        data = self.client.recv(4, socket.MSG_WAITALL)
+        data_len = struct.unpack('>i', data)[0]
+        data = self.client.recv(data_len, socket.MSG_WAITALL)
+        return pickle.loads(data)
+
+\end{pyverbatim}
+
 \section{OpenCV code}
 
 \subsection{calibrate.py}
@@ -266,7 +390,7 @@ def run():
         cv2.namedWindow('image')
 
         # create trackbars for color change
-        cv2.createTrackbar('HMin', 'image', 0, 179, nothing)  # Hue is from 0-179 for Opencv
+        cv2.createTrackbar('HMin', 'image', 0, 179, nothing)
         cv2.createTrackbar('SMin', 'image', 0, 255, nothing)
         cv2.createTrackbar('VMin', 'image', 0, 255, nothing)
         cv2.createTrackbar('HMax', 'image', 0, 179, nothing)
@@ -284,7 +408,7 @@ def run():
 
         # OpenCV function
         WINDOW_NAME = "Calibration of filter"
-        cv2.namedWindow(WINDOW_NAME)  # open a window to show debugging images
+        cv2.namedWindow(WINDOW_NAME)
         vc = cv2.VideoCapture(0)  # Initialize the default camera
 
         try:
@@ -314,10 +438,11 @@ def run():
                 output = cv2.bitwise_and(frame, frame, mask=mask)
 
                 # Print if there is a change in HSV value
-                if ((phMin != hMin) | (psMin != sMin) | (pvMin != vMin) | (phMax != hMax) | (psMax != sMax) | (
-                        pvMax != vMax)):
-                    print("(hMin = %d , sMin = %d, vMin = %d), (hMax = %d , sMax = %d, vMax = %d)" % (
-                        hMin, sMin, vMin, hMax, sMax, vMax))
+                if ((phMin != hMin) | (psMin != sMin) | (pvMin != vMin) |\
+                 (phMax != hMax) | (psMax != sMax) | (pvMax != vMax)):
+                    print("(hMin = %d , sMin = %d, vMin = %d), 
+                               (hMax = %d , sMax = %d, vMax = %d)"
+                                % (hMin, sMin, vMin, hMax, sMax, vMax))
                     phMin = hMin
                     psMin = sMin
                     pvMin = vMin
@@ -410,11 +535,12 @@ def filter_image(frame: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]
     return total, red, final
 
 
-def compute_red_dot(final: np.ndarray, frame: np.ndarray) -> Tuple[Union[None, float], Union[None, float], np.ndarray]:
+def compute_red_dot(final: np.ndarray, frame: np.ndarray) -> \
+Tuple[Union[None, float], Union[None, float], np.ndarray]:
 
     # Dilatation of filtered image
     dilatation = cv2.dilate(final, np.ones((3, 3)))
-    retval, labels, stats, centroids = cv2.connectedComponentsWithStats(dilatation)
+    retval,labels,stats,centroids = cv2.connectedComponentsWithStats(dilatation)
 
     # Compute position of biggest red area
     x, y = None, None
@@ -442,4 +568,247 @@ def compute_red_dot(final: np.ndarray, frame: np.ndarray) -> Tuple[Union[None, f
 
 \end{pyverbatim}
 
+\section{RL framework}
+
+\subsection{environment.py}
+\label{environment}
+\begin{pyverbatim}
+
+from abc import ABC
+import gym
+from src import Network
+from . processing import *
+import time
+
+
+class RaspEnv(gym.Env, ABC):
+    def __init__(self):
+        # The Discrete space allows a fixed range of non-negative numbers
+        self.action_space = gym.spaces.Discrete(4)
+        # Shape of observation space
+        self.observation_shape = (8,)
+        # The Box space represents an n-dimensional box
+        self.observation_space = gym.spaces.Box(
+                 shape=self.observation_shape,
+                 low=np.array([-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0]),
+                 high=np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+                 dtype=np.float64)
+        # Coordinates of red dot on pc screen
+        self.square_ = [0.0, 0.0]
+        # Link with our Raspberry to receive observations
+        self.network = Network()
+        # Record video from webcam number 0
+        self.cap = cv2.VideoCapture(0)
+        # Monitor the existence of a red dot
+        self.trainable = True
+
+    @property
+    def frame(self):
+        # try to get the first frame
+        if self.cap.isOpened():
+            # frame has shape (720, 1280, 3)
+            readSuccessful, frame = self.cap.read()
+        else:
+            raise (Exception("failed to open camera."))
+        return frame
+
+    @property
+    def square(self):
+        get_red_dot(self, False)
+        return self.square_
+
+    @square.setter
+    def square(self, s: list):
+        self.square_ = s
+        if s[0] is None and s[1] is None:
+            print("Lost position of red dot !")
+            self.trainable = False
+        else:
+            self.trainable = True
+
+    def step(self, action: int) -> Tuple[np.ndarray, float, bool, dict]:
+
+        # The default resulting outcome is: keep training !
+        done = False
+
+        # Send action to Raspberry Pi
+        self.network.send(action)
+
+        # Let a small time laps to PC before fetching the env's response
+        time.sleep(0.2)
+
+        # Get ax, ay, az, gx, gy, gz from Raspberry Pi
+        obs = self.network.recv()
+
+        # Update location of red dot on PC screen
+        get_red_dot(env=self, display_images=False)
+
+        # Prevent agent from learning if red dot disappears
+        if not self.trainable:
+            obs += [e for e in [0.0, 0.0]]
+            obs = np.asarray(obs)
+            reward = np.random.rand(1)[0]
+            done = True
+
+        else:
+            # normalize the position of the dot
+            x, y = (self.square_[0] - 640) / 640, (self.square_[1] - 360) / 360
+
+            # Add red dot position to observation
+            obs.append(x)
+            obs.append(y)
+            obs = np.asarray(obs)
+
+            # Compute reward from red dot position
+            reward = self.compute_reward(x, y)
+
+        # To allow cap to be used in a loop
+        cv2.waitKey(10)
+
+        return obs, reward, done, {}
+
+    def compute_reward(self, x: float, y: float) -> float:
+
+        # Compute euclidean distance
+        # distance = -np.sqrt(x ** 2 + y ** 2)
+
+        # Compute distance with "gaussian kernel"
+        distance = 1 - np.exp(np.sqrt(x ** 2 + y ** 2))
+
+        return distance
+
+    def reset(self) -> np.ndarray:
+
+        # Reset red dot position
+        pos = np.random.randint(0, 8, 2)
+
+        # Put red dot at random initial locations
+        self.network.send([pos])
+
+        # Get Raspberry acceleration and gyroscopic data
+        obs = self.network.recv()
+
+        obs += [e for e in [0.0, 0.0]]
+        obs = np.asarray(obs)
+
+        return np.zeros(8)
+
+    def render(self, mode='human'):
+        pass
+
+\end{pyverbatim}
+
+\subsection{agent.py}
+\label{agent}
+\begin{pyverbatim}
+from . processing import *
+from .environment import RaspEnv
+import tensorflow as tf
+import warnings
+import abc
+import os
+from stable_baselines.common.env_checker import check_env
+from stable_baselines.common.callbacks import StopTrainingOnRewardThreshold,  \
+EvalCallback, CallbackList, CheckpointCallback
+from stable_baselines.common.vec_env import DummyVecEnv
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+warnings.filterwarnings("ignore", category=UserWarning)
+
+
+class Agent:
+
+    def __init__(self, model: abc.ABCMeta):
+        # Define new environment
+        self.env = RaspEnv()
+        # Check if environment is ok
+        check_env(self.env)
+        # Define empty model
+        self.model = model
+        # Configure model hyperparameters
+        self.config = {'learning_starts': 32, 
+                       'target_network_update_freq': 100, 
+                       'learning_rate': 0.001}
+
+    def load_model(self, tensorboard_log: str) -> None:
+
+        # Get path of latest model
+        path = os.getcwd()
+        os.chdir(os.getcwd() + '/model_checkpoints')
+
+        # Process all the files in the folder
+        files = [x for x in os.listdir() if x.endswith(".zip")]
+        num = []
+        for file in files:
+            num.append([int(x) for x in file.split('_') if x.isdigit()][0])
+        filename = "rl_model_" + str(max(num)) + "_steps.zip"
+
+        # Load most recent model
+        self.model = self.model.load(load_path=filename,
+                                     env=DummyVecEnv([lambda: self.env]),
+                                     tensorboard_log=tensorboard_log,
+                                     **self.config)
+        print("Successfully loaded the previous model: " + filename)
+
+        # Return to root path
+        os.chdir(path)
+
+    def create_model(self, tensorboard_log: str) -> None:
+
+        # Vector-encode our new environment
+        env = DummyVecEnv([lambda: self.env])
+
+        # Create new model
+        self.model = self.model('MlpPolicy', 
+                                 env, verbose=1,
+                                 tensorboard_log=tensorboard_log,
+                                 **self.config)
+        print(type(self.model))
+        print("Successfully created new model")
+
+    def train(self, tensorboard_log: str) -> None:
+
+        try:
+            self.load_model(tensorboard_log=tensorboard_log)
+
+        except:
+            self.create_model(tensorboard_log=tensorboard_log)
+
+        # Stop training if reward gets close to zero
+        callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=-0.1, 
+                                                         verbose=1)
+                                                                                           
+        eval_callback = EvalCallback(self.env, 
+                                     callback_on_new_best=callback_on_best, 
+                                     verbose=1)
+
+        # Save model at regular time intervals
+        checkpoint_callback = CheckpointCallback(save_freq=1000, 
+                                                 save_path='./model_checkpoints/')
+
+        # Chain callbacks together
+        callback = CallbackList([eval_callback, checkpoint_callback])
+
+        # Train model
+        self.model.learn(total_timesteps=int(1e10), 
+                           callback=callback, 
+                           tb_log_name="run")
+
+        # Save trained model
+        print("Training is finished!")
+
+    def evaluate(self, tensorboard_log: str) -> None:
+
+        self.create_model(tensorboard_log)
+        obs = self.env.reset()
+
+        while True:
+
+            # Compute action based on previous observation
+            action, _states = self.model.predict(obs, deterministic=True)
+            # Compute observation and reward from the action that was sent
+            obs, rewards, done, info = self.env.step(action)
+            if done:
+                obs = self.env.reset()
+                
+\end{pyverbatim}
 

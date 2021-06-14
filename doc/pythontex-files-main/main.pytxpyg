@@ -311,6 +311,34 @@
 \end{pytx@SaveVerbatim}
 
 \begin{pytx@SaveVerbatim}[commandchars=\\\{\}]{pytx@py@default@defaultverb@2}
+\PYG{k+kn}{import} \PYG{n+nn}{socket}
+\PYG{k+kn}{import} \PYG{n+nn}{pickle}
+\PYG{k+kn}{import} \PYG{n+nn}{struct}
+
+
+\PYG{k}{class} \PYG{n+nc}{Network}\PYG{p}{:}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{)}\PYG{p}{:}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{client} \PYG{o}{=} \PYG{n}{socket}\PYG{o}{.}\PYG{n}{socket}\PYG{p}{(}\PYG{n}{socket}\PYG{o}{.}\PYG{n}{AF\PYGZus{}INET}\PYG{p}{,} \PYG{n}{socket}\PYG{o}{.}\PYG{n}{SOCK\PYGZus{}STREAM}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{client}\PYG{o}{.}\PYG{n}{setsockopt}\PYG{p}{(}\PYG{n}{socket}\PYG{o}{.}\PYG{n}{IPPROTO\PYGZus{}TCP}\PYG{p}{,} \PYG{n}{socket}\PYG{o}{.}\PYG{n}{TCP\PYGZus{}NODELAY}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{host} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{192.168.1.40}\PYG{l+s+s2}{\PYGZdq{}}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{port} \PYG{o}{=} \PYG{l+m+mi}{9395}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{addr} \PYG{o}{=} \PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{host}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{port}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{client}\PYG{o}{.}\PYG{n}{connect}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{addr}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{send}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{data}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+        \PYG{n}{data} \PYG{o}{=} \PYG{n}{pickle}\PYG{o}{.}\PYG{n}{dumps}\PYG{p}{(}\PYG{n}{data}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{client}\PYG{o}{.}\PYG{n}{sendall}\PYG{p}{(}\PYG{n}{struct}\PYG{o}{.}\PYG{n}{pack}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZgt{}i}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{data}\PYG{p}{)}\PYG{p}{)}\PYG{p}{)}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{client}\PYG{o}{.}\PYG{n}{sendall}\PYG{p}{(}\PYG{n}{data}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{recv}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{:}
+        \PYG{n}{data} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{client}\PYG{o}{.}\PYG{n}{recv}\PYG{p}{(}\PYG{l+m+mi}{4}\PYG{p}{,} \PYG{n}{socket}\PYG{o}{.}\PYG{n}{MSG\PYGZus{}WAITALL}\PYG{p}{)}
+        \PYG{n}{data\PYGZus{}len} \PYG{o}{=} \PYG{n}{struct}\PYG{o}{.}\PYG{n}{unpack}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZgt{}i}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{data}\PYG{p}{)}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+        \PYG{n}{data} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{client}\PYG{o}{.}\PYG{n}{recv}\PYG{p}{(}\PYG{n}{data\PYGZus{}len}\PYG{p}{,} \PYG{n}{socket}\PYG{o}{.}\PYG{n}{MSG\PYGZus{}WAITALL}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{pickle}\PYG{o}{.}\PYG{n}{loads}\PYG{p}{(}\PYG{n}{data}\PYG{p}{)}
+\end{pytx@SaveVerbatim}
+
+\begin{pytx@SaveVerbatim}[commandchars=\\\{\}]{pytx@py@default@defaultverb@3}
 \PYG{k+kn}{import} \PYG{n+nn}{cv2}
 \PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
 
@@ -325,7 +353,7 @@
         \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{namedWindow}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 
         \PYG{c+c1}{\PYGZsh{} create trackbars for color change}
-        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{createTrackbar}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{HMin}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{179}\PYG{p}{,} \PYG{n}{nothing}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} Hue is from 0\PYGZhy{}179 for Opencv}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{createTrackbar}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{HMin}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{179}\PYG{p}{,} \PYG{n}{nothing}\PYG{p}{)}
         \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{createTrackbar}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{SMin}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{,} \PYG{n}{nothing}\PYG{p}{)}
         \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{createTrackbar}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{VMin}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{255}\PYG{p}{,} \PYG{n}{nothing}\PYG{p}{)}
         \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{createTrackbar}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{HMax}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{179}\PYG{p}{,} \PYG{n}{nothing}\PYG{p}{)}
@@ -343,7 +371,7 @@
 
         \PYG{c+c1}{\PYGZsh{} OpenCV function}
         \PYG{n}{WINDOW\PYGZus{}NAME} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Calibration of filter}\PYG{l+s+s2}{\PYGZdq{}}
-        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{namedWindow}\PYG{p}{(}\PYG{n}{WINDOW\PYGZus{}NAME}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} open a window to show debugging images}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{namedWindow}\PYG{p}{(}\PYG{n}{WINDOW\PYGZus{}NAME}\PYG{p}{)}
         \PYG{n}{vc} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{VideoCapture}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} Initialize the default camera}
 
         \PYG{k}{try}\PYG{p}{:}
@@ -373,10 +401,11 @@
                 \PYG{n}{output} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{bitwise\PYGZus{}and}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{,} \PYG{n}{frame}\PYG{p}{,} \PYG{n}{mask}\PYG{o}{=}\PYG{n}{mask}\PYG{p}{)}
 
                 \PYG{c+c1}{\PYGZsh{} Print if there is a change in HSV value}
-                \PYG{k}{if} \PYG{p}{(}\PYG{p}{(}\PYG{n}{phMin} \PYG{o}{!=} \PYG{n}{hMin}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}\PYG{n}{psMin} \PYG{o}{!=} \PYG{n}{sMin}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}\PYG{n}{pvMin} \PYG{o}{!=} \PYG{n}{vMin}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}\PYG{n}{phMax} \PYG{o}{!=} \PYG{n}{hMax}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}\PYG{n}{psMax} \PYG{o}{!=} \PYG{n}{sMax}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}
-                        \PYG{n}{pvMax} \PYG{o}{!=} \PYG{n}{vMax}\PYG{p}{)}\PYG{p}{)}\PYG{p}{:}
-                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{(hMin = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{ , sMin = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{, vMin = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{), (hMax = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{ , sMax = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{, vMax = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{)}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{\PYGZpc{}} \PYG{p}{(}
-                        \PYG{n}{hMin}\PYG{p}{,} \PYG{n}{sMin}\PYG{p}{,} \PYG{n}{vMin}\PYG{p}{,} \PYG{n}{hMax}\PYG{p}{,} \PYG{n}{sMax}\PYG{p}{,} \PYG{n}{vMax}\PYG{p}{)}\PYG{p}{)}
+                \PYG{k}{if} \PYG{p}{(}\PYG{p}{(}\PYG{n}{phMin} \PYG{o}{!=} \PYG{n}{hMin}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}\PYG{n}{psMin} \PYG{o}{!=} \PYG{n}{sMin}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}\PYG{n}{pvMin} \PYG{o}{!=} \PYG{n}{vMin}\PYG{p}{)} \PYG{o}{|}\PYGZbs{}
+                 \PYG{p}{(}\PYG{n}{phMax} \PYG{o}{!=} \PYG{n}{hMax}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}\PYG{n}{psMax} \PYG{o}{!=} \PYG{n}{sMax}\PYG{p}{)} \PYG{o}{|} \PYG{p}{(}\PYG{n}{pvMax} \PYG{o}{!=} \PYG{n}{vMax}\PYG{p}{)}\PYG{p}{)}\PYG{p}{:}
+                    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{(hMin = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{ , sMin = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{, vMin = }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{),}
+                               \PYG{p}{(}\PYG{n}{hMax} \PYG{o}{=} \PYG{o}{\PYGZpc{}}\PYG{n}{d} \PYG{p}{,} \PYG{n}{sMax} \PYG{o}{=} \PYG{o}{\PYGZpc{}}\PYG{n}{d}\PYG{p}{,} \PYG{n}{vMax} \PYG{o}{=} \PYG{o}{\PYGZpc{}}\PYG{n}{d}\PYG{p}{)}\PYG{l+s+s2}{\PYGZdq{}}
+                                \PYG{o}{\PYGZpc{}} \PYG{p}{(}\PYG{n}{hMin}\PYG{p}{,} \PYG{n}{sMin}\PYG{p}{,} \PYG{n}{vMin}\PYG{p}{,} \PYG{n}{hMax}\PYG{p}{,} \PYG{n}{sMax}\PYG{p}{,} \PYG{n}{vMax}\PYG{p}{)}\PYG{p}{)}
                     \PYG{n}{phMin} \PYG{o}{=} \PYG{n}{hMin}
                     \PYG{n}{psMin} \PYG{o}{=} \PYG{n}{sMin}
                     \PYG{n}{pvMin} \PYG{o}{=} \PYG{n}{vMin}
@@ -402,7 +431,7 @@
 \PYG{n}{run}\PYG{p}{(}\PYG{p}{)}
 \end{pytx@SaveVerbatim}
 
-\begin{pytx@SaveVerbatim}[commandchars=\\\{\}]{pytx@py@default@defaultverb@3}
+\begin{pytx@SaveVerbatim}[commandchars=\\\{\}]{pytx@py@default@defaultverb@4}
 \PYG{k+kn}{import} \PYG{n+nn}{cv2}
 \PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
 \PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{o}{*}
@@ -466,11 +495,12 @@
     \PYG{k}{return} \PYG{n}{total}\PYG{p}{,} \PYG{n}{red}\PYG{p}{,} \PYG{n}{final}
 
 
-\PYG{k}{def} \PYG{n+nf}{compute\PYGZus{}red\PYGZus{}dot}\PYG{p}{(}\PYG{n}{final}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{frame}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{n}{Tuple}\PYG{p}{[}\PYG{n}{Union}\PYG{p}{[}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{]}\PYG{p}{,} \PYG{n}{Union}\PYG{p}{[}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{]}\PYG{p}{,} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{]}\PYG{p}{:}
+\PYG{k}{def} \PYG{n+nf}{compute\PYGZus{}red\PYGZus{}dot}\PYG{p}{(}\PYG{n}{final}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n}{frame}\PYG{p}{:} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYGZbs{}
+\PYG{n}{Tuple}\PYG{p}{[}\PYG{n}{Union}\PYG{p}{[}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{]}\PYG{p}{,} \PYG{n}{Union}\PYG{p}{[}\PYG{k+kc}{None}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{]}\PYG{p}{,} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{]}\PYG{p}{:}
 
     \PYG{c+c1}{\PYGZsh{} Dilatation of filtered image}
     \PYG{n}{dilatation} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{dilate}\PYG{p}{(}\PYG{n}{final}\PYG{p}{,} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{p}{(}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{)}\PYG{p}{)}\PYG{p}{)}
-    \PYG{n}{retval}\PYG{p}{,} \PYG{n}{labels}\PYG{p}{,} \PYG{n}{stats}\PYG{p}{,} \PYG{n}{centroids} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{connectedComponentsWithStats}\PYG{p}{(}\PYG{n}{dilatation}\PYG{p}{)}
+    \PYG{n}{retval}\PYG{p}{,}\PYG{n}{labels}\PYG{p}{,}\PYG{n}{stats}\PYG{p}{,}\PYG{n}{centroids} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{connectedComponentsWithStats}\PYG{p}{(}\PYG{n}{dilatation}\PYG{p}{)}
 
     \PYG{c+c1}{\PYGZsh{} Compute position of biggest red area}
     \PYG{n}{x}\PYG{p}{,} \PYG{n}{y} \PYG{o}{=} \PYG{k+kc}{None}\PYG{p}{,} \PYG{k+kc}{None}
@@ -495,5 +525,240 @@
 
     \PYG{k}{else}\PYG{p}{:}
         \PYG{k}{return} \PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{,} \PYG{n}{image}
+\end{pytx@SaveVerbatim}
+
+\begin{pytx@SaveVerbatim}[commandchars=\\\{\}]{pytx@py@default@defaultverb@5}
+\PYG{k+kn}{from} \PYG{n+nn}{abc} \PYG{k+kn}{import} \PYG{n}{ABC}
+\PYG{k+kn}{import} \PYG{n+nn}{gym}
+\PYG{k+kn}{from} \PYG{n+nn}{src} \PYG{k+kn}{import} \PYG{n}{Network}
+\PYG{k+kn}{from} \PYG{n+nn}{.} \PYG{n}{processing} \PYG{k+kn}{import} \PYG{o}{*}
+\PYG{k+kn}{import} \PYG{n+nn}{time}
+
+
+\PYG{k}{class} \PYG{n+nc}{RaspEnv}\PYG{p}{(}\PYG{n}{gym}\PYG{o}{.}\PYG{n}{Env}\PYG{p}{,} \PYG{n}{ABC}\PYG{p}{)}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{)}\PYG{p}{:}
+        \PYG{c+c1}{\PYGZsh{} The Discrete space allows a fixed range of non\PYGZhy{}negative numbers}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{action\PYGZus{}space} \PYG{o}{=} \PYG{n}{gym}\PYG{o}{.}\PYG{n}{spaces}\PYG{o}{.}\PYG{n}{Discrete}\PYG{p}{(}\PYG{l+m+mi}{4}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} Shape of observation space}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{observation\PYGZus{}shape} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mi}{8}\PYG{p}{,}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} The Box space represents an n\PYGZhy{}dimensional box}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{observation\PYGZus{}space} \PYG{o}{=} \PYG{n}{gym}\PYG{o}{.}\PYG{n}{spaces}\PYG{o}{.}\PYG{n}{Box}\PYG{p}{(}
+                 \PYG{n}{shape}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{observation\PYGZus{}shape}\PYG{p}{,}
+                 \PYG{n}{low}\PYG{o}{=}\PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{1.0}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}
+                 \PYG{n}{high}\PYG{o}{=}\PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{1.0}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}
+                 \PYG{n}{dtype}\PYG{o}{=}\PYG{n}{np}\PYG{o}{.}\PYG{n}{float64}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} Coordinates of red dot on pc screen}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{square\PYGZus{}} \PYG{o}{=} \PYG{p}{[}\PYG{l+m+mf}{0.0}\PYG{p}{,} \PYG{l+m+mf}{0.0}\PYG{p}{]}
+        \PYG{c+c1}{\PYGZsh{} Link with our Raspberry to receive observations}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{network} \PYG{o}{=} \PYG{n}{Network}\PYG{p}{(}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} Record video from webcam number 0}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{cap} \PYG{o}{=} \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{VideoCapture}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} Monitor the existence of a red dot}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{trainable} \PYG{o}{=} \PYG{k+kc}{True}
+
+    \PYG{n+nd}{@property}
+    \PYG{k}{def} \PYG{n+nf}{frame}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{)}\PYG{p}{:}
+        \PYG{c+c1}{\PYGZsh{} try to get the first frame}
+        \PYG{k}{if} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{cap}\PYG{o}{.}\PYG{n}{isOpened}\PYG{p}{(}\PYG{p}{)}\PYG{p}{:}
+            \PYG{c+c1}{\PYGZsh{} frame has shape (720, 1280, 3)}
+            \PYG{n}{readSuccessful}\PYG{p}{,} \PYG{n}{frame} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{cap}\PYG{o}{.}\PYG{n}{read}\PYG{p}{(}\PYG{p}{)}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{raise} \PYG{p}{(}\PYG{n+ne}{Exception}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{failed to open camera.}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{frame}
+
+    \PYG{n+nd}{@property}
+    \PYG{k}{def} \PYG{n+nf}{square}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{)}\PYG{p}{:}
+        \PYG{n}{get\PYGZus{}red\PYGZus{}dot}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{k+kc}{False}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{square\PYGZus{}}
+
+    \PYG{n+nd}{@square}\PYG{o}{.}\PYG{n}{setter}
+    \PYG{k}{def} \PYG{n+nf}{square}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{s}\PYG{p}{:} \PYG{n+nb}{list}\PYG{p}{)}\PYG{p}{:}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{square\PYGZus{}} \PYG{o}{=} \PYG{n}{s}
+        \PYG{k}{if} \PYG{n}{s}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{o+ow}{is} \PYG{k+kc}{None} \PYG{o+ow}{and} \PYG{n}{s}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o+ow}{is} \PYG{k+kc}{None}\PYG{p}{:}
+            \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Lost position of red dot !}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{trainable} \PYG{o}{=} \PYG{k+kc}{False}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{trainable} \PYG{o}{=} \PYG{k+kc}{True}
+
+    \PYG{k}{def} \PYG{n+nf}{step}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{action}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{n}{Tuple}\PYG{p}{[}\PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{,} \PYG{n+nb}{bool}\PYG{p}{,} \PYG{n+nb}{dict}\PYG{p}{]}\PYG{p}{:}
+
+        \PYG{c+c1}{\PYGZsh{} The default resulting outcome is: keep training !}
+        \PYG{n}{done} \PYG{o}{=} \PYG{k+kc}{False}
+
+        \PYG{c+c1}{\PYGZsh{} Send action to Raspberry Pi}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{network}\PYG{o}{.}\PYG{n}{send}\PYG{p}{(}\PYG{n}{action}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Let a small time laps to PC before fetching the env\PYGZsq{}s response}
+        \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mf}{0.2}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Get ax, ay, az, gx, gy, gz from Raspberry Pi}
+        \PYG{n}{obs} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{network}\PYG{o}{.}\PYG{n}{recv}\PYG{p}{(}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Update location of red dot on PC screen}
+        \PYG{n}{get\PYGZus{}red\PYGZus{}dot}\PYG{p}{(}\PYG{n}{env}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{display\PYGZus{}images}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Prevent agent from learning if red dot disappears}
+        \PYG{k}{if} \PYG{o+ow}{not} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{trainable}\PYG{p}{:}
+            \PYG{n}{obs} \PYG{o}{+}\PYG{o}{=} \PYG{p}{[}\PYG{n}{e} \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{p}{[}\PYG{l+m+mf}{0.0}\PYG{p}{,} \PYG{l+m+mf}{0.0}\PYG{p}{]}\PYG{p}{]}
+            \PYG{n}{obs} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{asarray}\PYG{p}{(}\PYG{n}{obs}\PYG{p}{)}
+            \PYG{n}{reward} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{rand}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+            \PYG{n}{done} \PYG{o}{=} \PYG{k+kc}{True}
+
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{c+c1}{\PYGZsh{} normalize the position of the dot}
+            \PYG{n}{x}\PYG{p}{,} \PYG{n}{y} \PYG{o}{=} \PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{square\PYGZus{}}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{640}\PYG{p}{)} \PYG{o}{/} \PYG{l+m+mi}{640}\PYG{p}{,} \PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{square\PYGZus{}}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{360}\PYG{p}{)} \PYG{o}{/} \PYG{l+m+mi}{360}
+
+            \PYG{c+c1}{\PYGZsh{} Add red dot position to observation}
+            \PYG{n}{obs}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}
+            \PYG{n}{obs}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}
+            \PYG{n}{obs} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{asarray}\PYG{p}{(}\PYG{n}{obs}\PYG{p}{)}
+
+            \PYG{c+c1}{\PYGZsh{} Compute reward from red dot position}
+            \PYG{n}{reward} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{compute\PYGZus{}reward}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} To allow cap to be used in a loop}
+        \PYG{n}{cv2}\PYG{o}{.}\PYG{n}{waitKey}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{)}
+
+        \PYG{k}{return} \PYG{n}{obs}\PYG{p}{,} \PYG{n}{reward}\PYG{p}{,} \PYG{n}{done}\PYG{p}{,} \PYG{p}{\PYGZob{}}\PYG{p}{\PYGZcb{}}
+
+    \PYG{k}{def} \PYG{n+nf}{compute\PYGZus{}reward}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{x}\PYG{p}{:} \PYG{n+nb}{float}\PYG{p}{,} \PYG{n}{y}\PYG{p}{:} \PYG{n+nb}{float}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{n+nb}{float}\PYG{p}{:}
+
+        \PYG{c+c1}{\PYGZsh{} Compute euclidean distance}
+        \PYG{c+c1}{\PYGZsh{} distance = \PYGZhy{}np.sqrt(x ** 2 + y ** 2)}
+
+        \PYG{c+c1}{\PYGZsh{} Compute distance with \PYGZdq{}gaussian kernel\PYGZdq{}}
+        \PYG{n}{distance} \PYG{o}{=} \PYG{l+m+mi}{1} \PYG{o}{\PYGZhy{}} \PYG{n}{np}\PYG{o}{.}\PYG{n}{exp}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{sqrt}\PYG{p}{(}\PYG{n}{x} \PYG{o}{*}\PYG{o}{*} \PYG{l+m+mi}{2} \PYG{o}{+} \PYG{n}{y} \PYG{o}{*}\PYG{o}{*} \PYG{l+m+mi}{2}\PYG{p}{)}\PYG{p}{)}
+
+        \PYG{k}{return} \PYG{n}{distance}
+
+    \PYG{k}{def} \PYG{n+nf}{reset}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ndarray}\PYG{p}{:}
+
+        \PYG{c+c1}{\PYGZsh{} Reset red dot position}
+        \PYG{n}{pos} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{randint}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Put red dot at random initial locations}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{network}\PYG{o}{.}\PYG{n}{send}\PYG{p}{(}\PYG{p}{[}\PYG{n}{pos}\PYG{p}{]}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Get Raspberry acceleration and gyroscopic data}
+        \PYG{n}{obs} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{network}\PYG{o}{.}\PYG{n}{recv}\PYG{p}{(}\PYG{p}{)}
+
+        \PYG{n}{obs} \PYG{o}{+}\PYG{o}{=} \PYG{p}{[}\PYG{n}{e} \PYG{k}{for} \PYG{n}{e} \PYG{o+ow}{in} \PYG{p}{[}\PYG{l+m+mf}{0.0}\PYG{p}{,} \PYG{l+m+mf}{0.0}\PYG{p}{]}\PYG{p}{]}
+        \PYG{n}{obs} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{asarray}\PYG{p}{(}\PYG{n}{obs}\PYG{p}{)}
+
+        \PYG{k}{return} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{l+m+mi}{8}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{render}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{mode}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{human}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{:}
+        \PYG{k}{pass}
+\end{pytx@SaveVerbatim}
+
+\begin{pytx@SaveVerbatim}[commandchars=\\\{\}]{pytx@py@default@defaultverb@6}
+\PYG{k+kn}{from} \PYG{n+nn}{.} \PYG{n}{processing} \PYG{k+kn}{import} \PYG{o}{*}
+\PYG{k+kn}{from} \PYG{n+nn}{.}\PYG{n+nn}{environment} \PYG{k+kn}{import} \PYG{n}{RaspEnv}
+\PYG{k+kn}{import} \PYG{n+nn}{tensorflow} \PYG{k}{as} \PYG{n+nn}{tf}
+\PYG{k+kn}{import} \PYG{n+nn}{warnings}
+\PYG{k+kn}{import} \PYG{n+nn}{abc}
+\PYG{k+kn}{import} \PYG{n+nn}{os}
+\PYG{k+kn}{from} \PYG{n+nn}{stable\PYGZus{}baselines}\PYG{n+nn}{.}\PYG{n+nn}{common}\PYG{n+nn}{.}\PYG{n+nn}{env\PYGZus{}checker} \PYG{k+kn}{import} \PYG{n}{check\PYGZus{}env}
+\PYG{k+kn}{from} \PYG{n+nn}{stable\PYGZus{}baselines}\PYG{n+nn}{.}\PYG{n+nn}{common}\PYG{n+nn}{.}\PYG{n+nn}{callbacks} \PYG{k+kn}{import} \PYG{n}{StopTrainingOnRewardThreshold}\PYG{p}{,}  \PYGZbs{}
+\PYG{n}{EvalCallback}\PYG{p}{,} \PYG{n}{CallbackList}\PYG{p}{,} \PYG{n}{CheckpointCallback}
+\PYG{k+kn}{from} \PYG{n+nn}{stable\PYGZus{}baselines}\PYG{n+nn}{.}\PYG{n+nn}{common}\PYG{n+nn}{.}\PYG{n+nn}{vec\PYGZus{}env} \PYG{k+kn}{import} \PYG{n}{DummyVecEnv}
+\PYG{n}{tf}\PYG{o}{.}\PYG{n}{compat}\PYG{o}{.}\PYG{n}{v1}\PYG{o}{.}\PYG{n}{logging}\PYG{o}{.}\PYG{n}{set\PYGZus{}verbosity}\PYG{p}{(}\PYG{n}{tf}\PYG{o}{.}\PYG{n}{compat}\PYG{o}{.}\PYG{n}{v1}\PYG{o}{.}\PYG{n}{logging}\PYG{o}{.}\PYG{n}{ERROR}\PYG{p}{)}
+\PYG{n}{warnings}\PYG{o}{.}\PYG{n}{filterwarnings}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{ignore}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{category}\PYG{o}{=}\PYG{n+ne}{UserWarning}\PYG{p}{)}
+
+
+\PYG{k}{class} \PYG{n+nc}{Agent}\PYG{p}{:}
+
+    \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{model}\PYG{p}{:} \PYG{n}{abc}\PYG{o}{.}\PYG{n}{ABCMeta}\PYG{p}{)}\PYG{p}{:}
+        \PYG{c+c1}{\PYGZsh{} Define new environment}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{env} \PYG{o}{=} \PYG{n}{RaspEnv}\PYG{p}{(}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} Check if environment is ok}
+        \PYG{n}{check\PYGZus{}env}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{env}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} Define empty model}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{model} \PYG{o}{=} \PYG{n}{model}
+        \PYG{c+c1}{\PYGZsh{} Configure model hyperparameters}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{config} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{learning\PYGZus{}starts}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{l+m+mi}{32}\PYG{p}{,}
+                       \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{target\PYGZus{}network\PYGZus{}update\PYGZus{}freq}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{l+m+mi}{100}\PYG{p}{,}
+                       \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{learning\PYGZus{}rate}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{l+m+mf}{0.001}\PYG{p}{\PYGZcb{}}
+
+    \PYG{k}{def} \PYG{n+nf}{load\PYGZus{}model}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{tensorboard\PYGZus{}log}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+
+        \PYG{c+c1}{\PYGZsh{} Get path of latest model}
+        \PYG{n}{path} \PYG{o}{=} \PYG{n}{os}\PYG{o}{.}\PYG{n}{getcwd}\PYG{p}{(}\PYG{p}{)}
+        \PYG{n}{os}\PYG{o}{.}\PYG{n}{chdir}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{getcwd}\PYG{p}{(}\PYG{p}{)} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{/model\PYGZus{}checkpoints}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Process all the files in the folder}
+        \PYG{n}{files} \PYG{o}{=} \PYG{p}{[}\PYG{n}{x} \PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n}{os}\PYG{o}{.}\PYG{n}{listdir}\PYG{p}{(}\PYG{p}{)} \PYG{k}{if} \PYG{n}{x}\PYG{o}{.}\PYG{n}{endswith}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{.zip}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{]}
+        \PYG{n}{num} \PYG{o}{=} \PYG{p}{[}\PYG{p}{]}
+        \PYG{k}{for} \PYG{n}{file} \PYG{o+ow}{in} \PYG{n}{files}\PYG{p}{:}
+            \PYG{n}{num}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)} \PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n}{file}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZus{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)} \PYG{k}{if} \PYG{n}{x}\PYG{o}{.}\PYG{n}{isdigit}\PYG{p}{(}\PYG{p}{)}\PYG{p}{]}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{)}
+        \PYG{n}{filename} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{rl\PYGZus{}model\PYGZus{}}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{+} \PYG{n+nb}{str}\PYG{p}{(}\PYG{n+nb}{max}\PYG{p}{(}\PYG{n}{num}\PYG{p}{)}\PYG{p}{)} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{\PYGZus{}steps.zip}\PYG{l+s+s2}{\PYGZdq{}}
+
+        \PYG{c+c1}{\PYGZsh{} Load most recent model}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{model} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{model}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{n}{load\PYGZus{}path}\PYG{o}{=}\PYG{n}{filename}\PYG{p}{,}
+                                     \PYG{n}{env}\PYG{o}{=}\PYG{n}{DummyVecEnv}\PYG{p}{(}\PYG{p}{[}\PYG{k}{lambda}\PYG{p}{:} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{env}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}
+                                     \PYG{n}{tensorboard\PYGZus{}log}\PYG{o}{=}\PYG{n}{tensorboard\PYGZus{}log}\PYG{p}{,}
+                                     \PYG{o}{*}\PYG{o}{*}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{config}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Successfully loaded the previous model: }\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{+} \PYG{n}{filename}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Return to root path}
+        \PYG{n}{os}\PYG{o}{.}\PYG{n}{chdir}\PYG{p}{(}\PYG{n}{path}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{create\PYGZus{}model}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{tensorboard\PYGZus{}log}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+
+        \PYG{c+c1}{\PYGZsh{} Vector\PYGZhy{}encode our new environment}
+        \PYG{n}{env} \PYG{o}{=} \PYG{n}{DummyVecEnv}\PYG{p}{(}\PYG{p}{[}\PYG{k}{lambda}\PYG{p}{:} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{env}\PYG{p}{]}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Create new model}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{model} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{model}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{MlpPolicy}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}
+                                 \PYG{n}{env}\PYG{p}{,} \PYG{n}{verbose}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{,}
+                                 \PYG{n}{tensorboard\PYGZus{}log}\PYG{o}{=}\PYG{n}{tensorboard\PYGZus{}log}\PYG{p}{,}
+                                 \PYG{o}{*}\PYG{o}{*}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{config}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{n+nb}{type}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{model}\PYG{p}{)}\PYG{p}{)}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Successfully created new model}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{train}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{tensorboard\PYGZus{}log}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+
+        \PYG{k}{try}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{load\PYGZus{}model}\PYG{p}{(}\PYG{n}{tensorboard\PYGZus{}log}\PYG{o}{=}\PYG{n}{tensorboard\PYGZus{}log}\PYG{p}{)}
+
+        \PYG{k}{except}\PYG{p}{:}
+            \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{create\PYGZus{}model}\PYG{p}{(}\PYG{n}{tensorboard\PYGZus{}log}\PYG{o}{=}\PYG{n}{tensorboard\PYGZus{}log}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Stop training if reward gets close to zero}
+        \PYG{n}{callback\PYGZus{}on\PYGZus{}best} \PYG{o}{=} \PYG{n}{StopTrainingOnRewardThreshold}\PYG{p}{(}\PYG{n}{reward\PYGZus{}threshold}\PYG{o}{=}\PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{0.1}\PYG{p}{,}
+                                                         \PYG{n}{verbose}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+
+        \PYG{n}{eval\PYGZus{}callback} \PYG{o}{=} \PYG{n}{EvalCallback}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{env}\PYG{p}{,}
+                                     \PYG{n}{callback\PYGZus{}on\PYGZus{}new\PYGZus{}best}\PYG{o}{=}\PYG{n}{callback\PYGZus{}on\PYGZus{}best}\PYG{p}{,}
+                                     \PYG{n}{verbose}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Save model at regular time intervals}
+        \PYG{n}{checkpoint\PYGZus{}callback} \PYG{o}{=} \PYG{n}{CheckpointCallback}\PYG{p}{(}\PYG{n}{save\PYGZus{}freq}\PYG{o}{=}\PYG{l+m+mi}{1000}\PYG{p}{,}
+                                                 \PYG{n}{save\PYGZus{}path}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{./model\PYGZus{}checkpoints/}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Chain callbacks together}
+        \PYG{n}{callback} \PYG{o}{=} \PYG{n}{CallbackList}\PYG{p}{(}\PYG{p}{[}\PYG{n}{eval\PYGZus{}callback}\PYG{p}{,} \PYG{n}{checkpoint\PYGZus{}callback}\PYG{p}{]}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Train model}
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{model}\PYG{o}{.}\PYG{n}{learn}\PYG{p}{(}\PYG{n}{total\PYGZus{}timesteps}\PYG{o}{=}\PYG{n+nb}{int}\PYG{p}{(}\PYG{l+m+mf}{1e10}\PYG{p}{)}\PYG{p}{,}
+                           \PYG{n}{callback}\PYG{o}{=}\PYG{n}{callback}\PYG{p}{,}
+                           \PYG{n}{tb\PYGZus{}log\PYGZus{}name}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{run}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+        \PYG{c+c1}{\PYGZsh{} Save trained model}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Training is finished!}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{k}{def} \PYG{n+nf}{evaluate}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{tensorboard\PYGZus{}log}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+
+        \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{create\PYGZus{}model}\PYG{p}{(}\PYG{n}{tensorboard\PYGZus{}log}\PYG{p}{)}
+        \PYG{n}{obs} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{env}\PYG{o}{.}\PYG{n}{reset}\PYG{p}{(}\PYG{p}{)}
+
+        \PYG{k}{while} \PYG{k+kc}{True}\PYG{p}{:}
+
+            \PYG{c+c1}{\PYGZsh{} Compute action based on previous observation}
+            \PYG{n}{action}\PYG{p}{,} \PYG{n}{\PYGZus{}states} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{model}\PYG{o}{.}\PYG{n}{predict}\PYG{p}{(}\PYG{n}{obs}\PYG{p}{,} \PYG{n}{deterministic}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}
+            \PYG{c+c1}{\PYGZsh{} Compute observation and reward from the action that was sent}
+            \PYG{n}{obs}\PYG{p}{,} \PYG{n}{rewards}\PYG{p}{,} \PYG{n}{done}\PYG{p}{,} \PYG{n}{info} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{env}\PYG{o}{.}\PYG{n}{step}\PYG{p}{(}\PYG{n}{action}\PYG{p}{)}
+            \PYG{k}{if} \PYG{n}{done}\PYG{p}{:}
+                \PYG{n}{obs} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{env}\PYG{o}{.}\PYG{n}{reset}\PYG{p}{(}\PYG{p}{)}
 \end{pytx@SaveVerbatim}
 

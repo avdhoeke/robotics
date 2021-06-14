@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.5.18)  13 JUN 2021 14:16
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.5.18)  14 JUN 2021 17:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1164,7 +1164,11 @@ File: l3backend-pdftex.def 2021-03-18 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count371
 \l__pdf_internal_box=\box79
 )
-(./main.aux)
+(./main.aux
+
+LaTeX Warning: Label `reward_dist' multiply defined.
+
+)
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 16.
@@ -1299,7 +1303,7 @@ LaTeX Font Info:    Redeclaring math accent \widehat on input line 16.
 LaTeX Font Info:    Redeclaring math accent \widetilde on input line 16.
  (./pythontex-files-main/main.pytxpyg)
 (./cover.tex
-<Images/ehb_logo.jpg, id=51, 1027.84pt x 642.4pt>
+<Images/ehb_logo.jpg, id=87, 1027.84pt x 642.4pt>
 File: Images/ehb_logo.jpg Graphic file (type jpg)
 <use Images/ehb_logo.jpg>
 Package pdftex.def Info: Images/ehb_logo.jpg  used on input line 9.
@@ -1343,37 +1347,35 @@ s/ehb_logo.jpg>]) (./main.toc)
 e{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.1 \chapter
-            {Introduction} [1
-
-]
-Chapter 1.
-[2
+l.1 \mychapter{1}{Introduction}
+                                [1
 
 ]
 LaTeX Font Info:    Trying to load font information for TS1+futs on input line 
 10.
- (/usr/local/texlive/2021/texmf-dist/tex/latex/fourier/ts1futs.fd
+
+(/usr/local/texlive/2021/texmf-dist/tex/latex/fourier/ts1futs.fd
 File: ts1futs.fd 2003/09/14 Fontinst v1.801 font definitions for TS1/futs.
-)
+) [2
+
+]
 Overfull \hbox (1.26273pt too wide) in paragraph at lines 42--43
 []\T1/futs/m/n/12 To en-sure a com-mu-ni-ca-tion be-tween both en-ti-ties, we i
 m-ple-ment a Python socket
  []
 
-[3]
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 4
 5.
- (/usr/local/texlive/2021/texmf-dist/tex/latex/base/t1cmtt.fd
+(/usr/local/texlive/2021/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
-)
+) [3]
 Overfull \hbox (1.06184pt too wide) in paragraph at lines 50--51
 \T1/futs/m/n/12 Rasp-berry in-stance needs a func-tion that trans-lates the ac-
 tion pre-scribed by the agent
  []
 
 [4]
-<Images/calibrate.png, id=101, 1278.7775pt x 929.4725pt>
+<Images/calibrate.png, id=148, 1278.7775pt x 929.4725pt>
 File: Images/calibrate.png Graphic file (type png)
 <use Images/calibrate.png>
 Package pdftex.def Info: Images/calibrate.png  used on input line 66.
@@ -1383,13 +1385,12 @@ Underfull \hbox (badness 1038) in paragraph at lines 67--67
 []\T1/futs/m/n/12 Figure 1.2: |Im-age pro-cess-ing us-ing
  []
 
-<Images/calibrate2.png, id=103, 1279.78125pt x 927.465pt>
+<Images/calibrate2.png, id=150, 1279.78125pt x 927.465pt>
 File: Images/calibrate2.png Graphic file (type png)
 <use Images/calibrate2.png>
 Package pdftex.def Info: Images/calibrate2.png  used on input line 73.
 (pdftex.def)             Requested size: 184.92886pt x 142.25548pt.
-[5 <./Images/calibrate.png> <./Images/calibrate2.png>]
-<Images/original.png, id=117, 1281.78876pt x 747.79375pt>
+<Images/original.png, id=154, 1281.78876pt x 747.79375pt>
 File: Images/original.png Graphic file (type png)
 <use Images/original.png>
 Package pdftex.def Info: Images/original.png  used on input line 93.
@@ -1399,7 +1400,7 @@ Overfull \hbox (10.9513pt too wide) in paragraph at lines 93--94
  [][] 
  []
 
-<Images/red_filter.png, id=118, 1278.7775pt x 796.9775pt>
+<Images/red_filter.png, id=155, 1278.7775pt x 796.9775pt>
 File: Images/red_filter.png Graphic file (type png)
 <use Images/red_filter.png>
 Package pdftex.def Info: Images/red_filter.png  used on input line 100.
@@ -1409,7 +1410,8 @@ Overfull \hbox (10.9517pt too wide) in paragraph at lines 100--101
  [][] 
  []
 
-<Images/additional_red_filter.png, id=119, 1281.78876pt x 743.77875pt>
+[5 <./Images/calibrate.png> <./Images/calibrate2.png>]
+<Images/additional_red_filter.png, id=167, 1281.78876pt x 743.77875pt>
 File: Images/additional_red_filter.png Graphic file (type png)
 <use Images/additional_red_filter.png>
 Package pdftex.def Info: Images/additional_red_filter.png  used on input line 1
@@ -1420,7 +1422,7 @@ Overfull \hbox (10.9513pt too wide) in paragraph at lines 110--111
  [][] 
  []
 
-<Images/threshold.png, id=122, 1276.77pt x 742.775pt>
+<Images/threshold.png, id=170, 1276.77pt x 742.775pt>
 File: Images/threshold.png Graphic file (type png)
 <use Images/threshold.png>
 Package pdftex.def Info: Images/threshold.png  used on input line 117.
@@ -1432,37 +1434,107 @@ Overfull \hbox (10.95074pt too wide) in paragraph at lines 117--118
 
 [6 <./Images/original.png> <./Images/red_filter.png> <./Images/additional_red_f
 ilter.png> <./Images/threshold.png>] [7]
-Chapter 2.
+Package epstopdf Info: Source file: <Images/reward.eps>
+(epstopdf)                    date: 2021-06-14 11:06:15
+(epstopdf)                    size: 1360232 bytes
+(epstopdf)             Output file: <Images/reward-eps-converted-to.pdf>
+(epstopdf)                    date: 2021-06-14 11:06:55
+(epstopdf)                    size: 225764 bytes
+(epstopdf)             Command: <repstopdf --outfile=Images/reward-eps-converte
+d-to.pdf Images/reward.eps>
+(epstopdf)             \includegraphics on input line 148.
+Package epstopdf Info: Output file is already uptodate.
+<Images/reward-eps-converted-to.pdf, id=187, 1084.05pt x 722.7pt>
+File: Images/reward-eps-converted-to.pdf Graphic file (type pdf)
+<use Images/reward-eps-converted-to.pdf>
+Package pdftex.def Info: Images/reward-eps-converted-to.pdf  used on input line
+ 148.
+(pdftex.def)             Requested size: 379.42319pt x 252.94878pt.
+ [8 <./Images/reward-eps-converted-to.pdf>] [9
+
+]
+Package epstopdf Info: Source file: <Images/ppo2_1.eps>
+(epstopdf)                    date: 2021-06-14 12:26:04
+(epstopdf)                    size: 152836 bytes
+(epstopdf)             Output file: <Images/ppo2_1-eps-converted-to.pdf>
+(epstopdf)                    date: 2021-06-14 14:26:08
+(epstopdf)                    size: 51440 bytes
+(epstopdf)             Command: <repstopdf --outfile=Images/ppo2_1-eps-converte
+d-to.pdf Images/ppo2_1.eps>
+(epstopdf)             \includegraphics on input line 172.
+Package epstopdf Info: Output file is already uptodate.
+<Images/ppo2_1-eps-converted-to.pdf, id=233, 1445.4pt x 867.24pt>
+File: Images/ppo2_1-eps-converted-to.pdf Graphic file (type pdf)
+<use Images/ppo2_1-eps-converted-to.pdf>
+Package pdftex.def Info: Images/ppo2_1-eps-converted-to.pdf  used on input line
+ 172.
+(pdftex.def)             Requested size: 289.07487pt x 173.44493pt.
+ [10 <./Images/ppo2_1-eps-converted-to.pdf>]
+Package epstopdf Info: Source file: <Images/ppo2_2.eps>
+(epstopdf)                    date: 2021-06-14 14:37:32
+(epstopdf)                    size: 207496 bytes
+(epstopdf)             Output file: <Images/ppo2_2-eps-converted-to.pdf>
+(epstopdf)                    date: 2021-06-14 14:48:55
+(epstopdf)                    size: 65776 bytes
+(epstopdf)             Command: <repstopdf --outfile=Images/ppo2_2-eps-converte
+d-to.pdf Images/ppo2_2.eps>
+(epstopdf)             \includegraphics on input line 188.
+Package epstopdf Info: Output file is already uptodate.
+<Images/ppo2_2-eps-converted-to.pdf, id=276, 1445.4pt x 867.24pt>
+File: Images/ppo2_2-eps-converted-to.pdf Graphic file (type pdf)
+<use Images/ppo2_2-eps-converted-to.pdf>
+Package pdftex.def Info: Images/ppo2_2-eps-converted-to.pdf  used on input line
+ 188.
+(pdftex.def)             Requested size: 289.07487pt x 173.44493pt.
+ [11 <./Images/ppo2_2-eps-converted-to.pdf>]
+Package epstopdf Info: Source file: <Images/dqn.eps>
+(epstopdf)                    date: 2021-06-14 14:56:36
+(epstopdf)                    size: 667789 bytes
+(epstopdf)             Output file: <Images/dqn-eps-converted-to.pdf>
+(epstopdf)                    date: 2021-06-14 15:42:56
+(epstopdf)                    size: 185276 bytes
+(epstopdf)             Command: <repstopdf --outfile=Images/dqn-eps-converted-t
+o.pdf Images/dqn.eps>
+(epstopdf)             \includegraphics on input line 207.
+Package epstopdf Info: Output file is already uptodate.
+<Images/dqn-eps-converted-to.pdf, id=321, 1445.4pt x 867.24pt>
+File: Images/dqn-eps-converted-to.pdf Graphic file (type pdf)
+<use Images/dqn-eps-converted-to.pdf>
+Package pdftex.def Info: Images/dqn-eps-converted-to.pdf  used on input line 20
+7.
+(pdftex.def)             Requested size: 289.07487pt x 173.44493pt.
+ [12 <./Images/dqn-eps-converted-to.pdf>] [13]
 \c@pytx@py@default@defaultverb=\count382
 \c@pytx@py@default@defaultverb@line=\count383
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <12> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 192.
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 283.
 LaTeX Font Info:    Trying to load font information for TS1+cmtt on input line 
-192.
+283.
+
 (/usr/local/texlive/2021/texmf-dist/tex/latex/base/ts1cmtt.fd
 File: ts1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
-) [8
+) [14
 
-] [9] [10]
-[11] [12] [13] [14] [15] [16])
+] [15]
+[16] [17] [18] [19] [20] [21] [22] [23] [24] [25] [26] [27] [28] [29] [30])
 No file main.bbl.
 
 Package caption Warning: Unused \captionsetup[sub] on input line 46.
 See the caption package documentation for explanation.
 
-[17] (./main.aux)
+[31] (./main.aux)
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+LaTeX Warning: There were multiply-defined labels.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: F1B8B0AE46A18CC13A687CBFCB06AECC;1546.
+(rerunfilecheck)             Checksum: 27A40794896CD497BE75C83F1EA7B2A8;2477.
  ) 
 Here is how much of TeX's memory you used:
- 30090 strings out of 478994
- 529611 string characters out of 5858184
- 880124 words of memory out of 5000000
- 46887 multiletter control sequences out of 15000+600000
- 494559 words of font info for 107 fonts, out of 8000000 for 9000
+ 30174 strings out of 478994
+ 531108 string characters out of 5858184
+ 901042 words of memory out of 5000000
+ 46925 multiletter control sequences out of 15000+600000
+ 497049 words of font info for 116 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  118i,8n,119p,1895b,877s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
@@ -1475,10 +1547,10 @@ dist/fonts/type1/adobe/utopia/putr8a.pfb></usr/local/texlive/2021/texmf-dist/fo
 nts/type1/adobe/utopia/putri8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/ty
 pe1/public/cm-super/sfit1200.pfb></usr/local/texlive/2021/texmf-dist/fonts/type
 1/public/cm-super/sftt1200.pfb>
-Output written on main.pdf (18 pages, 10131420 bytes).
+Output written on main.pdf (32 pages, 10679052 bytes).
 PDF statistics:
- 223 PDF objects out of 1000 (max. 8388607)
- 180 compressed objects within 2 object streams
- 40 named destinations out of 1000 (max. 500000)
- 136 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 488 PDF objects out of 1000 (max. 8388607)
+ 320 compressed objects within 4 object streams
+ 72 named destinations out of 1000 (max. 500000)
+ 228 words of extra memory for PDF output out of 10000 (max. 10000000)
 

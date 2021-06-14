@@ -22,8 +22,6 @@ class RaspEnv(gym.Env, ABC):
         self.network = Network()
         # Record video from webcam number 0
         self.cap = cv2.VideoCapture(0)
-        # Count the number of time_steps
-        self.counter = 0
         # Monitor the existence of a red dot
         self.trainable = True
 
@@ -124,8 +122,7 @@ class RaspEnv(gym.Env, ABC):
         :return: list
         '''
 
-        # Reset counter and red dot position
-        self.counter = 0
+        # Reset red dot position
         pos = np.random.randint(0, 8, 2)
 
         # Put red dot at random initial locations
@@ -134,10 +131,6 @@ class RaspEnv(gym.Env, ABC):
         # Get Raspberry acceleration and gyroscopic data
         obs = self.network.recv()
 
-        obs += [e for e in [0.0, 0.0]]
-        obs = np.asarray(obs)
-
-        #return obs
         return np.zeros(8)
 
     def render(self, mode='human'):

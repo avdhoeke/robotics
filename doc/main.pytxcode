@@ -1,4 +1,4 @@
-=>PYTHONTEX#py#default#defaultverb#0#verbatim####project.tex#133#
+=>PYTHONTEX#py#default#defaultverb#0#verbatim####project.tex#224#
 import socket
 from _thread import *
 import pickle
@@ -57,7 +57,7 @@ while True:
     conn, addr = s.accept()
     print('Connected to:', addr)
     start_new_thread(threaded_client, (conn, ))
-=>PYTHONTEX#py#default#defaultverb#1#verbatim####project.tex#197#
+=>PYTHONTEX#py#default#defaultverb#1#verbatim####project.tex#288#
 import numpy as np
 
 
@@ -107,7 +107,34 @@ class Raspberry:
 
         self.sense.set_pixel(self.led[0], self.led[1], (255, 0, 0))
 
-=>PYTHONTEX#py#default#defaultverb#2#verbatim####project.tex#254#
+=>PYTHONTEX#py#default#defaultverb#2#verbatim####project.tex#344#
+import socket
+import pickle
+import struct
+
+
+class Network:
+
+    def __init__(self):
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        self.host = "192.168.1.40"
+        self.port = 9395
+        self.addr = (self.host, self.port)
+        self.client.connect(self.addr)
+
+    def send(self, data) -> None:
+        data = pickle.dumps(data)
+        self.client.sendall(struct.pack('>i', len(data)))
+        self.client.sendall(data)
+
+    def recv(self) -> list:
+        data = self.client.recv(4, socket.MSG_WAITALL)
+        data_len = struct.unpack('>i', data)[0]
+        data = self.client.recv(data_len, socket.MSG_WAITALL)
+        return pickle.loads(data)
+
+=>PYTHONTEX#py#default#defaultverb#3#verbatim####project.tex#378#
 import cv2
 import numpy as np
 
@@ -122,7 +149,7 @@ def run():
         cv2.namedWindow('image')
 
         # create trackbars for color change
-        cv2.createTrackbar('HMin', 'image', 0, 179, nothing)  # Hue is from 0-179 for Opencv
+        cv2.createTrackbar('HMin', 'image', 0, 179, nothing)
         cv2.createTrackbar('SMin', 'image', 0, 255, nothing)
         cv2.createTrackbar('VMin', 'image', 0, 255, nothing)
         cv2.createTrackbar('HMax', 'image', 0, 179, nothing)
@@ -140,7 +167,7 @@ def run():
 
         # OpenCV function
         WINDOW_NAME = "Calibration of filter"
-        cv2.namedWindow(WINDOW_NAME)  # open a window to show debugging images
+        cv2.namedWindow(WINDOW_NAME)
         vc = cv2.VideoCapture(0)  # Initialize the default camera
 
         try:
@@ -170,10 +197,11 @@ def run():
                 output = cv2.bitwise_and(frame, frame, mask=mask)
 
                 # Print if there is a change in HSV value
-                if ((phMin != hMin) | (psMin != sMin) | (pvMin != vMin) | (phMax != hMax) | (psMax != sMax) | (
-                        pvMax != vMax)):
-                    print("(hMin = %d , sMin = %d, vMin = %d), (hMax = %d , sMax = %d, vMax = %d)" % (
-                        hMin, sMin, vMin, hMax, sMax, vMax))
+                if ((phMin != hMin) | (psMin != sMin) | (pvMin != vMin) |\
+                 (phMax != hMax) | (psMax != sMax) | (pvMax != vMax)):
+                    print("(hMin = %d , sMin = %d, vMin = %d),
+                               (hMax = %d , sMax = %d, vMax = %d)"
+                                % (hMin, sMin, vMin, hMax, sMax, vMax))
                     phMin = hMin
                     psMin = sMin
                     pvMin = vMin
@@ -198,7 +226,7 @@ def run():
 
 run()
 
-=>PYTHONTEX#py#default#defaultverb#3#verbatim####project.tex#349#
+=>PYTHONTEX#py#default#defaultverb#4#verbatim####project.tex#474#
 import cv2
 import numpy as np
 from typing import *
@@ -262,11 +290,12 @@ def filter_image(frame: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]
     return total, red, final
 
 
-def compute_red_dot(final: np.ndarray, frame: np.ndarray) -> Tuple[Union[None, float], Union[None, float], np.ndarray]:
+def compute_red_dot(final: np.ndarray, frame: np.ndarray) -> \
+Tuple[Union[None, float], Union[None, float], np.ndarray]:
 
     # Dilatation of filtered image
     dilatation = cv2.dilate(final, np.ones((3, 3)))
-    retval, labels, stats, centroids = cv2.connectedComponentsWithStats(dilatation)
+    retval,labels,stats,centroids = cv2.connectedComponentsWithStats(dilatation)
 
     # Compute position of biggest red area
     x, y = None, None
@@ -291,6 +320,240 @@ def compute_red_dot(final: np.ndarray, frame: np.ndarray) -> Tuple[Union[None, f
 
     else:
         return x, y, image
+
+=>PYTHONTEX#py#default#defaultverb#5#verbatim####project.tex#575#
+
+from abc import ABC
+import gym
+from src import Network
+from . processing import *
+import time
+
+
+class RaspEnv(gym.Env, ABC):
+    def __init__(self):
+        # The Discrete space allows a fixed range of non-negative numbers
+        self.action_space = gym.spaces.Discrete(4)
+        # Shape of observation space
+        self.observation_shape = (8,)
+        # The Box space represents an n-dimensional box
+        self.observation_space = gym.spaces.Box(
+                 shape=self.observation_shape,
+                 low=np.array([-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0]),
+                 high=np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+                 dtype=np.float64)
+        # Coordinates of red dot on pc screen
+        self.square_ = [0.0, 0.0]
+        # Link with our Raspberry to receive observations
+        self.network = Network()
+        # Record video from webcam number 0
+        self.cap = cv2.VideoCapture(0)
+        # Monitor the existence of a red dot
+        self.trainable = True
+
+    @property
+    def frame(self):
+        # try to get the first frame
+        if self.cap.isOpened():
+            # frame has shape (720, 1280, 3)
+            readSuccessful, frame = self.cap.read()
+        else:
+            raise (Exception("failed to open camera."))
+        return frame
+
+    @property
+    def square(self):
+        get_red_dot(self, False)
+        return self.square_
+
+    @square.setter
+    def square(self, s: list):
+        self.square_ = s
+        if s[0] is None and s[1] is None:
+            print("Lost position of red dot !")
+            self.trainable = False
+        else:
+            self.trainable = True
+
+    def step(self, action: int) -> Tuple[np.ndarray, float, bool, dict]:
+
+        # The default resulting outcome is: keep training !
+        done = False
+
+        # Send action to Raspberry Pi
+        self.network.send(action)
+
+        # Let a small time laps to PC before fetching the env's response
+        time.sleep(0.2)
+
+        # Get ax, ay, az, gx, gy, gz from Raspberry Pi
+        obs = self.network.recv()
+
+        # Update location of red dot on PC screen
+        get_red_dot(env=self, display_images=False)
+
+        # Prevent agent from learning if red dot disappears
+        if not self.trainable:
+            obs += [e for e in [0.0, 0.0]]
+            obs = np.asarray(obs)
+            reward = np.random.rand(1)[0]
+            done = True
+
+        else:
+            # normalize the position of the dot
+            x, y = (self.square_[0] - 640) / 640, (self.square_[1] - 360) / 360
+
+            # Add red dot position to observation
+            obs.append(x)
+            obs.append(y)
+            obs = np.asarray(obs)
+
+            # Compute reward from red dot position
+            reward = self.compute_reward(x, y)
+
+        # To allow cap to be used in a loop
+        cv2.waitKey(10)
+
+        return obs, reward, done, {}
+
+    def compute_reward(self, x: float, y: float) -> float:
+
+        # Compute euclidean distance
+        # distance = -np.sqrt(x ** 2 + y ** 2)
+
+        # Compute distance with "gaussian kernel"
+        distance = 1 - np.exp(np.sqrt(x ** 2 + y ** 2))
+
+        return distance
+
+    def reset(self) -> np.ndarray:
+
+        # Reset red dot position
+        pos = np.random.randint(0, 8, 2)
+
+        # Put red dot at random initial locations
+        self.network.send([pos])
+
+        # Get Raspberry acceleration and gyroscopic data
+        obs = self.network.recv()
+
+        obs += [e for e in [0.0, 0.0]]
+        obs = np.asarray(obs)
+
+        return np.zeros(8)
+
+    def render(self, mode='human'):
+        pass
+
+=>PYTHONTEX#py#default#defaultverb#6#verbatim####project.tex#703#
+from . processing import *
+from .environment import RaspEnv
+import tensorflow as tf
+import warnings
+import abc
+import os
+from stable_baselines.common.env_checker import check_env
+from stable_baselines.common.callbacks import StopTrainingOnRewardThreshold,  \
+EvalCallback, CallbackList, CheckpointCallback
+from stable_baselines.common.vec_env import DummyVecEnv
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+warnings.filterwarnings("ignore", category=UserWarning)
+
+
+class Agent:
+
+    def __init__(self, model: abc.ABCMeta):
+        # Define new environment
+        self.env = RaspEnv()
+        # Check if environment is ok
+        check_env(self.env)
+        # Define empty model
+        self.model = model
+        # Configure model hyperparameters
+        self.config = {'learning_starts': 32,
+                       'target_network_update_freq': 100,
+                       'learning_rate': 0.001}
+
+    def load_model(self, tensorboard_log: str) -> None:
+
+        # Get path of latest model
+        path = os.getcwd()
+        os.chdir(os.getcwd() + '/model_checkpoints')
+
+        # Process all the files in the folder
+        files = [x for x in os.listdir() if x.endswith(".zip")]
+        num = []
+        for file in files:
+            num.append([int(x) for x in file.split('_') if x.isdigit()][0])
+        filename = "rl_model_" + str(max(num)) + "_steps.zip"
+
+        # Load most recent model
+        self.model = self.model.load(load_path=filename,
+                                     env=DummyVecEnv([lambda: self.env]),
+                                     tensorboard_log=tensorboard_log,
+                                     **self.config)
+        print("Successfully loaded the previous model: " + filename)
+
+        # Return to root path
+        os.chdir(path)
+
+    def create_model(self, tensorboard_log: str) -> None:
+
+        # Vector-encode our new environment
+        env = DummyVecEnv([lambda: self.env])
+
+        # Create new model
+        self.model = self.model('MlpPolicy',
+                                 env, verbose=1,
+                                 tensorboard_log=tensorboard_log,
+                                 **self.config)
+        print(type(self.model))
+        print("Successfully created new model")
+
+    def train(self, tensorboard_log: str) -> None:
+
+        try:
+            self.load_model(tensorboard_log=tensorboard_log)
+
+        except:
+            self.create_model(tensorboard_log=tensorboard_log)
+
+        # Stop training if reward gets close to zero
+        callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=-0.1,
+                                                         verbose=1)
+
+        eval_callback = EvalCallback(self.env,
+                                     callback_on_new_best=callback_on_best,
+                                     verbose=1)
+
+        # Save model at regular time intervals
+        checkpoint_callback = CheckpointCallback(save_freq=1000,
+                                                 save_path='./model_checkpoints/')
+
+        # Chain callbacks together
+        callback = CallbackList([eval_callback, checkpoint_callback])
+
+        # Train model
+        self.model.learn(total_timesteps=int(1e10),
+                           callback=callback,
+                           tb_log_name="run")
+
+        # Save trained model
+        print("Training is finished!")
+
+    def evaluate(self, tensorboard_log: str) -> None:
+
+        self.create_model(tensorboard_log)
+        obs = self.env.reset()
+
+        while True:
+
+            # Compute action based on previous observation
+            action, _states = self.model.predict(obs, deterministic=True)
+            # Compute observation and reward from the action that was sent
+            obs, rewards, done, info = self.env.step(action)
+            if done:
+                obs = self.env.reset()
 
 =>PYTHONTEX:SETTINGS#
 version=0.17

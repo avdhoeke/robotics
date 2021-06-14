@@ -1,4 +1,3 @@
-from . processing import *
 from .environment import RaspEnv
 import tensorflow as tf
 import warnings
@@ -23,11 +22,11 @@ class Agent:
         # Configure model hyperparameters
         self.config = {'learning_starts': 32, 'target_network_update_freq': 100, 'learning_rate': 0.001}
 
-    def load_model(self, tensorboard_log: str) -> None:
+    def load_model(self, tensorboard_log: str, model_path: str = '/model_checkpoints') -> None:
 
         # Get path of latest model
         path = os.getcwd()
-        os.chdir(os.getcwd() + '/model_checkpoints')
+        os.chdir(os.getcwd() + model_path)
 
         # Process all the files in the folder
         files = [x for x in os.listdir() if x.endswith(".zip")]
@@ -82,9 +81,9 @@ class Agent:
         # Save trained model
         print("Training is finished!")
 
-    def evaluate(self, tensorboard_log: str) -> None:
+    def evaluate(self, tensorboard_log: str, model_path: str) -> None:
 
-        self.create_model(tensorboard_log)
+        self.load_model(tensorboard_log=tensorboard_log, model_path=model_path)
         obs = self.env.reset()
 
         while True:
