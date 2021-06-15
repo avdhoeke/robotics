@@ -1,6 +1,6 @@
 \mychapter{1}{Introduction}
 
-In this robotics class, we consider the task of making a person hold his/her Raspberry Pi in front of a laptop's webcam.  The Raspberry Pi, equipped with its sense hat,  allows to display a single red dot on its LED matrix so that the webcam can monitor it. The goal of this project is to ensure that the red dot always remains as close as possible to the webcam's captured image. This must particularly hold if the person shakes, moves, or rotates the Raspberry Pi in front of the webcam. If the Raspberry Pi's LED matrix is placed too far from the webcam's image center, the red dot should be placed as close as possible to the latter.
+In this robotics class, we consider the task of making a person hold his/her Raspberry Pi in front of a laptop's webcam.  The Raspberry Pi, equipped with its sense hat,  allows to display a single red dot on its LED matrix so that the webcam can monitor it. The goal of this project is to ensure that the red dot always remains as close as possible to the center of the webcam's captured image. This must particularly hold if the person shakes, moves, or rotates the Raspberry Pi in front of the webcam. If the Raspberry Pi's LED matrix is placed too far from the webcam's image center, the red dot should be placed as close as possible to the latter.
 
 If we were to solve this problem manually, we would need to have access to the Raspberry Pi's accelerometer and gyroscope to determine the speed and the direction of the motion of the red dot on the LED matrix. This would require us to use a reference frame for which the origin would be the center of the webcam's image. Access to acceleration and gyroscopic data would allow to construct a velocity vector anchored at the red dot and pointing towards the origin of this reference frame. Doing so would enable us to undo the person's motions and therefore stabilize the red dot at the center of the image. Although this approach seems technically feasible, its implementation is not straightforward. 
 
@@ -35,11 +35,11 @@ squarednode/.style={rectangle, draw=black!60, fill=black!5, very thick, minimum 
 
 \end{tikzpicture}
 
-\caption{Communication between the Raspberry Pi and the RL agent. The Pi sends its acceleration and gyroscopic data over to the agent which decides what action to take in order to re-center the red dot on the Pi.} 
+\caption{Communication between the Raspberry Pi and the RL agent. The Pi sends its acceleration and gyroscopic data over to the agent which decides what action to take in order to re-center the red dot on the webcam image.} 
 \label{communication}
 \end{figure}
 
-To ensure a communication between both entities, we implement a Python socket server on the on both sides over the same wifi network. On the Pi, we create a python socket server using code inspired from the project description. Section \ref{server_code} of the Appendix illustrates this process. Apart from the functions for sending and receiving objects from/to the server, a Sensehat instance is created, along with a Raspberry instance. The Sensehat object is responsible for
+To ensure a communication between both entities, we implement a Python socket server on both sides over the same wifi network. On the Pi, we create a python socket server using code inspired from the project description. Section \ref{server_code} of the Appendix illustrates this process. Apart from the functions for sending and receiving objects from/to the server, a Sensehat instance is created, along with a Raspberry instance. The Sensehat object is responsible for
 
 \begin{enumerate}
 \item displaying the LED light through its \texttt{\detokenize{set_pixel()}} method;
@@ -158,14 +158,14 @@ In order to train our agent in the environment we just set up, we simply need to
 
 \section{PPO2}
 
-The first algorithm I investigated is the actor-critic PPO2 algorithm of the stable-baseline library. Although PPO2 has a few hyperparameters one could tune, I decided to go with the default parameters for this first agent. Besides,  two important aspects of this first run significantly affected the learning process:
+The first algorithm I investigated is the actor-critic PPO2 algorithm of the stable-baselines library. Although PPO2 has a few hyperparameters one could tune, I decided to go with the default parameters for this first agent. Besides,  two important aspects of this first run significantly affected the learning process:
 
 \begin{enumerate}
 	\item The observation space has large lower and upper bounds;
 	\item The negative normalized euclidean distance between the red dot's position and the image center is used as a reward.
 \end{enumerate}
 
-Doing so produces a reward that potentially ranges from $0$ to $-1$ (location of one corner). In the first trial, the Raspberry Pi was maintained in the same position in order to verify that the agent is able to place the red dot at the desired location without any perturbation of the Pi's position and orientation. In these settings, the agent experienced a first drop in discounted reward before starting to learn after approximatively $6000$ time steps.  Figure \ref{reward_dist} indeed shows this trend. The sudden drops around $10000$ and $27000$ time steps are due to the resuming of training. The signal indeed drops suddenly before stabilizing around reward values experienced by the end of the last run. One could therefore argue that this approach is an instance of curriculum learning where the agents benefits from knowledge acquired during previous runs while being trained.
+Doing so produces a reward that potentially ranges from $-\sqrt{2}$ (location of one corner) to $0$ (image center). In the first trial, the Raspberry Pi was maintained in the same position in order to verify that the agent is able to place the red dot at the desired location without any perturbation of the Pi's position and orientation. In these settings, the agent experienced a first drop in discounted reward before starting to learn after approximatively $6000$ time steps.  Figure \ref{reward_dist} indeed shows this trend. The sudden drops around $10000$ and $27000$ time steps are due to the resuming of training. The signal indeed drops suddenly before stabilizing around reward values experienced by the end of the last run. One could therefore argue that this approach is an instance of curriculum learning where the agents benefits from knowledge acquired during previous runs while being trained.
 
 \begin{figure}[H]
 	\centering
